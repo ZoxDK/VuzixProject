@@ -45,10 +45,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(
             RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
             if (activities.size() == 0) {
-            Toast.makeText(this, "Voice recognizer not present",
-            Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Voice recognizer not present",
+                Toast.LENGTH_SHORT).show();
             return false;
-        }
+            }
         return true;
     }
 
@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
             Log.i("Scan result", scanResult.getContents());
-        } else return;
+        }
     }
 
     @Override
