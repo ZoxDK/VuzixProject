@@ -1,12 +1,12 @@
 package com.tdoc.vuzixproject;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class ButtonTestActivity extends ActionBarActivity {
+public class ButtonTestActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
