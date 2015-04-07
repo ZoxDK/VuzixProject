@@ -36,4 +36,13 @@
         android:layout_toLeftOf="@+id/buttonTest"
         android:layout_toStartOf="@+id/buttonTest" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test button2"
+        android:id="@+id/buttonTest2"
+        android:layout_below="@+id/buttonTest"
+        android:layout_toRightOf="@+id/tvData"
+        android:layout_toEndOf="@+id/tvData" />
+
 </RelativeLayout>

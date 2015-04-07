@@ -27,13 +27,17 @@ import java.util.List;
 public class MainActivity extends Activity implements View.OnClickListener{
     private GestureController gestSensor;
     private VoiceController voiceCtrl;
-    private Button buttonTest;
+    private Button buttonTest, buttonTest2;
     private TextView tvData;
+    private int clickedTimes = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Check for voice recognition ability of device, create object if there.
+        // Add another grammar (for "scan next"). Best would be homemade grammar/.lcf file with wordlist.
 
         if (checkVoiceRecognition()) {
             voiceCtrl = new VoiceController(this, MainActivity.this);
@@ -42,16 +46,19 @@ public class MainActivity extends Activity implements View.OnClickListener{
         gestSensor = new GestureController(this);
 
         buttonTest = (Button) findViewById(R.id.buttonTest);
+        buttonTest2 = (Button) findViewById(R.id.buttonTest2);
         buttonTest.setOnClickListener(this);
+        buttonTest2.setOnClickListener(this);
 
         tvData = (TextView) findViewById(R.id.tvData);
 
-        // Enable Local Datastore.
+        // Enable Local Datastore. Currently not used and creates issues due to running before .initialize for some reason.
         //Parse.enableLocalDatastore(this);
 
+        // Initialize Parse.com access, probably with user and project hashes.
         Parse.initialize(this, "sbnDtByNJrzgQXik8HRac2HyUVhqkigKUOcbQ52g", "oTAXhgq4M8qHcvAfAxJKRQ07DyP2zJz1phdeut8r");
 
-        // Parse.com test
+        // Parse.com test data push
         //ParseObject testObject = new ParseObject("OnlineData");
         //testObject.put("barcode", "KR05WP5W7176929HA11AA00");
         //testObject.put("data1", "This is another test string.");
@@ -59,8 +66,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
         //testObject.saveInBackground();
     }
 
+    // Check if voice recognition is present
     public boolean checkVoiceRecognition() {
-        // Check if voice recognition is present
         PackageManager pm = getPackageManager();
         List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(
             RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
@@ -72,23 +79,26 @@ public class MainActivity extends Activity implements View.OnClickListener{
         return true;
     }
 
-    @Override
+    @Override // Currently just for testing physical buttons and gestures on the M100
     public void onClick(View v) {
         if (v == buttonTest) {
             Intent intent = new Intent(this, ButtonTestActivity.class);
             startActivity(intent);
+        } if (v == buttonTest2) {
+            clickedTimes++;
+            buttonTest2.setText("Button 2 clicked "+ clickedTimes + " times");
         }
     }
 
 
-    @Override
+    @Override // Currently not used, might never be, due to restricted controls
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    @Override
+    @Override // Currently not used, might never be, due to restricted controls
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -104,14 +114,20 @@ public class MainActivity extends Activity implements View.OnClickListener{
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
+
+            // Convert to preferred ZXing IntentResult
             IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 Log.i("Scan result", scanResult.getContents());
 
+                // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
                 query.whereEqualTo("barcode", scanResult.getContents());
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
+                    // done is run when background query task returns a result, hopefully with a result object
                     public void done(ParseObject object, ParseException e) {
                         if (e == null) {
                             Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
@@ -119,7 +135,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                             tvData.append("Integer data received: " + object.getInt("data2"));
                         } else {
                             Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-
+                            // Let the user know if the object just couldn't be found, or if it's an actual error
                             if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
                                 tvData.setText("Barcode not found in system.\n" +
                                         "Please try again...");
@@ -133,6 +149,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
     }
 
+    /***********************
+     * Ensure that activity doesn't keep listening when not in focus, and clean up once destroyed.
+     **********************/
     @Override
     protected void onResume(){
         super.onResume();

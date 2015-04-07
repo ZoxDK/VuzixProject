@@ -8,6 +8,10 @@ import android.view.MenuItem;
 
 public class ButtonTestActivity extends Activity {
 
+    /**
+     * Activity created to test handling of new activity creation on the M100,
+     * plus buttons.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
