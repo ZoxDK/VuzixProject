@@ -33,11 +33,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private int clickedTimes = 0;
     public static boolean isThereVoice = false, scannerIntentRunning = false;
     String model = "";
-    String[] wordList = {"back", "next"};
+    String[] wordList = {"back", "next", "barcode"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("onCreate", "onCreate run");
         setContentView(R.layout.activity_main);
 
         // Check for voice recognition ability of device, create object if there.
@@ -46,6 +47,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         if (checkVoiceRecognition() && model.equals("M100")) {
             voiceCtrl = new VoiceController(this, MainActivity.this);
+            voiceCtrl.addGrammar(Constants.GRAMMAR_WAREHOUSE);
             voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
             voiceCtrl.setWordlist(wordList);
         }

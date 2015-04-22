@@ -41,18 +41,27 @@ public class VoiceController extends VoiceControl {
     protected void onRecognition(String result) {
         Log.i("VoiceRecognition", result);
 
-        // Was trying to use "scan next", but cannot be combined with current grammars, so listen for "next"
-        // then start scanner intent.
-        if (result.equals("next")) {
-            Log.i("VoiceRecognition", "Next gotten");
-            MainActivity.scannerIntentRunning = true;
-            IntentIntegrator integrator = new IntentIntegrator(callingActivity);
-            integrator.initiateScan();
-        } else if (result.equals("back") && MainActivity.scannerIntentRunning){
-            Log.i("VoiceRecognition", "Back gotten");
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            context.startActivity(intent);
+        // Check if supposed to listen for voice
+        // ! Currently, the M100 turns off the mic and only listens for Voice On, if Voice Off is given
+        // Hence, this check and setup is redundant !
+        if (!ApplicationSingleton.voiceOff) {
+            if (result.equals("barcode")) {
+                Log.i("VoiceRecognition", "Bar code gotten");
+                MainActivity.scannerIntentRunning = true;
+                IntentIntegrator integrator = new IntentIntegrator(callingActivity);
+                integrator.initiateScan();
+            } else if (result.equals("back") && MainActivity.scannerIntentRunning) {
+                Log.i("VoiceRecognition", "Back gotten");
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                context.startActivity(intent);
+            } else if (result.equals("voice off")){
+                Log.i("VoiceRecognition", "Voice off gotten");
+                ApplicationSingleton.voiceOff = true;
+            }
+        } else if (result.equals("voice on")){
+            Log.i("VoiceRecognition", "Voice on gotten");
+            ApplicationSingleton.voiceOff = false;
         }
     }
 

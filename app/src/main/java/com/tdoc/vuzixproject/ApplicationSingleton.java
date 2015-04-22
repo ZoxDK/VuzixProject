@@ -9,6 +9,7 @@ import com.parse.Parse;
  */
 public class ApplicationSingleton extends Application {
     private static ApplicationSingleton ourInstance = null;
+    public static boolean voiceOff = false;
 
     @Override
     public void onCreate(){
