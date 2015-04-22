@@ -1,109 +1,120 @@
 package com.tdoc.vuzixproject;
 
-import android.app.Activity;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link LoginFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class LoginFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class LoginFragment extends Fragment implements View.OnClickListener {
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    //private Button buttonTest, buttonTest2;
+    public static TextView instructions_login;
+    private EditText etLogin;
+    private View rootView;
+    public static boolean nameCorrect = false;
+    private String currentName = "";
 
-    private OnFragmentInteractionListener mListener;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LoginFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LoginFragment newInstance(String param1, String param2) {
-        LoginFragment fragment = new LoginFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public LoginFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        rootView = inflater.inflate(R.layout.fragment_login, container, false);
+
+        //buttonTest = (Button) rootView.findViewById(R.id.buttonTest);
+        //buttonTest2 = (Button) rootView.findViewById(R.id.buttonTest2);
+        //buttonTest.setOnClickListener(this);
+        //buttonTest2.setOnClickListener(this);
+
+        instructions_login = (TextView) rootView.findViewById(R.id.instructions_login);
+        etLogin = (EditText) rootView.findViewById(R.id.etLogin);
+        etLogin.setText("Name");
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login, container, false);
+        return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+
+    @Override // Currently just for testing physical buttons and gestures on the M100
+    public void onClick(View v) {
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        // Currently only getting scan results, but check for request code to be sure
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
+            MainActivity.scannerIntentRunning = false;
+            // Convert to preferred ZXing IntentResult
+            final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            if (scanResult != null) {
+                Log.i("Scan result", "" + scanResult.getContents());
+
+                if (!nameCorrect) {
+                    etLogin.setText("" + scanResult.getContents());
+                    currentName = scanResult.getContents();
+                    instructions_login.setText("If the name in the field is correct, please say \"scan next\".");
+                } else {
+                    // Query Parse.com, as testing in regards to sending and receiving data
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("LoginCreds");
+                    query.whereEqualTo("name", currentName);
+                    query.getFirstInBackground(new GetCallback<ParseObject>() {
+                        // done is run when background query task returns a result, hopefully with a result object
+                        public void done(ParseObject object, ParseException e) {
+                            if (e == null) {
+                                Log.d("data retrieved: ", object.getString("name") + " and " + object.getString("pw"));
+                                if (object.getString("pw").equals(scanResult.getContents())){
+                                    Log.d("Login: ", "Success!");
+                                    Fragment fragment = new MainFragment();
+                                    getFragmentManager().beginTransaction()
+                                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                                            .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                                            .addToBackStack(null)
+                                            .commit();
+                                    MainActivity.voiceCtrl.setCallingFragment(fragment);
+                                    ApplicationSingleton.sharedPreferences.edit()
+                                            .putString("currentName", currentName)
+                                            .putString("pw", scanResult.getContents())
+                                            .commit();
+                                } else {
+                                    Log.d("Login: ", "Fail!");
+                                    instructions_login.setText("Login failed, please try again...");
+                                    nameCorrect = false;
+                                    etLogin.setText("Name");
+                                }
+                            } else {
+                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                                // Let the user know if the object just couldn't be found, or if it's an actual error
+                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                                    instructions_login.setText("Name " + currentName + " not found in system.\n" +
+                                            "Scanned data: " + scanResult.getContents() + ".\n" +
+                                            "Please try again...");
+                                    nameCorrect = false;
+                                    currentName = "";
+                                    etLogin.setText("Name");
+
+                                } else {
+                                    instructions_login.setText("And error occurred. Please try again...");
+                                    nameCorrect = false;
+                                    currentName = "";
+                                    etLogin.setText("Name");
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
     }
 
 }

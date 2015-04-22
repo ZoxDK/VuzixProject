@@ -1,6 +1,8 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.parse.Parse;
 
@@ -9,6 +11,7 @@ import com.parse.Parse;
  */
 public class ApplicationSingleton extends Application {
     private static ApplicationSingleton ourInstance = null;
+    public static SharedPreferences sharedPreferences;
     public static boolean voiceOff = false;
 
     @Override
@@ -16,6 +19,7 @@ public class ApplicationSingleton extends Application {
         super.onCreate();
         ourInstance = this;
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ourInstance);
         // Enable Local Datastore. Currently not used and creates issues due to running before .initialize for some reason.
         //Parse.enableLocalDatastore(this);
 

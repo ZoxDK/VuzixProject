@@ -1,6 +1,7 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -25,15 +26,12 @@ import com.vuzix.speech.Constants;
 import java.util.List;
 
 
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends Activity {
     private GestureController gestSensor;
-    private VoiceController voiceCtrl;
-    private Button buttonTest, buttonTest2;
-    private TextView tvData;
-    private int clickedTimes = 0;
+    public static VoiceController voiceCtrl;
     public static boolean isThereVoice = false, scannerIntentRunning = false;
     String model = "";
-    String[] wordList = {"back", "next", "barcode"};
+    String[] wordList = {"back", "next", "bar code", "packing list", "perpetual inventory system"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,17 +51,20 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
         //gestSensor = new GestureController(this);
 
-        buttonTest = (Button) findViewById(R.id.buttonTest);
-        buttonTest2 = (Button) findViewById(R.id.buttonTest2);
-        buttonTest.setOnClickListener(this);
-        buttonTest2.setOnClickListener(this);
 
-        tvData = (TextView) findViewById(R.id.tvData);
+        // Add first fragment
+        if (savedInstanceState == null) {
+            LoginFragment fragment = new LoginFragment();
+            getFragmentManager().beginTransaction()
+                    .add(R.id.fragmentcontainer, fragment, "FRAG_LOGIN")
+                    .commit();
+            voiceCtrl.setCallingFragment(fragment);
+        }
 
         // Parse.com test data push
-        //ParseObject testObject = new ParseObject("OnlineData");
-        //testObject.put("barcode", "5060335631558");
-        //testObject.put("data1", "This is a test string.");
+        //ParseObject testObject = new ParseObject("LoginCreds");
+        //testObject.put("name", "Ketil Kirchhof");
+        //testObject.put("pw", "Getinge!");
         //testObject.put("data2", 002);
         //testObject.saveInBackground();
 
@@ -84,22 +85,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         isThereVoice = true;
         return true;
     }
-
-    @Override // Currently just for testing physical buttons and gestures on the M100
-    public void onClick(View v) {
-        if (v == buttonTest) {
-            //Intent intent = new Intent(this, ButtonTestActivity.class);
-            //startActivity(intent);
-
-            // For testing scanner without voice controller useable (not using M100)
-            IntentIntegrator integrator = new IntentIntegrator(this);
-            integrator.initiateScan();
-        } if (v == buttonTest2) {
-            clickedTimes++;
-            buttonTest2.setText("Button 2 clicked "+ clickedTimes + " times");
-        }
-    }
-
 
     @Override // Currently not used, might never be, due to restricted controls
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,7 +108,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         return super.onOptionsItemSelected(item);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    /*public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
@@ -133,32 +118,38 @@ public class MainActivity extends Activity implements View.OnClickListener{
             if (scanResult != null) {
                 Log.i("Scan result", ""+scanResult.getContents());
 
-                // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
-                query.whereEqualTo("barcode", scanResult.getContents());
-                query.getFirstInBackground(new GetCallback<ParseObject>() {
-                    // done is run when background query task returns a result, hopefully with a result object
-                    public void done(ParseObject object, ParseException e) {
-                        if (e == null) {
-                            Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
-                            tvData.setText("String data received: " + object.getString("data1") + "\n");
-                            tvData.append("Integer data received: " + object.getInt("data2"));
-                        } else {
-                            Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                            // Let the user know if the object just couldn't be found, or if it's an actual error
-                            if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                tvData.setText("Barcode not found in system.\n" +
-                                        "Scanned data: " + scanResult.getContents() + ".\n" +
-                                        "Please try again...");
+                Fragment f = this.getFragmentManager().findFragmentById(R.id.fragmentcontainer);
+                if (f instanceof LoginFragment){
+
+                } else if (f instanceof MainFragment) {
+
+                    // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
+                    query.whereEqualTo("barcode", scanResult.getContents());
+                    query.getFirstInBackground(new GetCallback<ParseObject>() {
+                        // done is run when background query task returns a result, hopefully with a result object
+                        public void done(ParseObject object, ParseException e) {
+                            if (e == null) {
+                                Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
+                                MainFragment.tvData.setText("String data received: " + object.getString("data1") + "\n");
+                                MainFragment.tvData.append("Integer data received: " + object.getInt("data2"));
                             } else {
-                                tvData.setText("And error occurred. Please try again...");
+                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                                // Let the user know if the object just couldn't be found, or if it's an actual error
+                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                                    MainFragment.tvData.setText("Barcode not found in system.\n" +
+                                            "Scanned data: " + scanResult.getContents() + ".\n" +
+                                            "Please try again...");
+                                } else {
+                                    MainFragment.tvData.setText("And error occurred. Please try again...");
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
-    }
+    }*/
 
     /***********************
      * Ensure that activity doesn't keep listening when not in focus, and clean up once destroyed.

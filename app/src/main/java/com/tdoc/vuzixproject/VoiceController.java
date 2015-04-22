@@ -1,6 +1,7 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -11,8 +12,13 @@ import com.vuzix.speech.VoiceControl;
  * Created by ZoxDK on 15-03-2015.
  */
 public class VoiceController extends VoiceControl {
-    Context context;
-    Activity callingActivity;
+    private Context context;
+    private Activity callingActivity;
+    private Fragment callingFragment;
+
+    public void setCallingFragment(Fragment callingFragment) {
+        this.callingFragment = callingFragment;
+    }
 
     public VoiceController(Context context){
         super(context);
@@ -45,22 +51,45 @@ public class VoiceController extends VoiceControl {
         // ! Currently, the M100 turns off the mic and only listens for Voice On, if Voice Off is given
         // Hence, this check and setup is redundant !
         if (!ApplicationSingleton.voiceOff) {
-            if (result.equals("barcode")) {
+            if (result.equals("bar code")) {
                 Log.i("VoiceRecognition", "Bar code gotten");
+
                 MainActivity.scannerIntentRunning = true;
-                IntentIntegrator integrator = new IntentIntegrator(callingActivity);
+                IntentIntegrator integrator = new IntentIntegrator(callingFragment);
                 integrator.initiateScan();
             } else if (result.equals("back") && MainActivity.scannerIntentRunning) {
                 Log.i("VoiceRecognition", "Back gotten");
+
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
+            } else if (result.equals("next")) {
+                Log.i("VoiceRecognition", "Next gotten");
+
+                MainActivity.scannerIntentRunning = true;
+                LoginFragment.nameCorrect = true;
+                IntentIntegrator integrator = new IntentIntegrator(callingFragment);
+                integrator.initiateScan();
+            } else if (result.equals("packing list")){
+                Fragment fragment = new PackingListFragment();
+                callingFragment.getFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragmentcontainer, fragment, "FRAG_PACK")
+                        .addToBackStack(null)
+                        .commit();
+                callingFragment = fragment;
             } else if (result.equals("voice off")){
                 Log.i("VoiceRecognition", "Voice off gotten");
+
                 ApplicationSingleton.voiceOff = true;
+            } else if (result.equals("perpetual inventory system")){
+                android.os.Process.killProcess(android.os.Process.myPid());
+                MainActivity.voiceCtrl.destroy();
             }
+
         } else if (result.equals("voice on")){
             Log.i("VoiceRecognition", "Voice on gotten");
+
             ApplicationSingleton.voiceOff = false;
         }
     }
