@@ -8,7 +8,7 @@ import com.parse.Parse;
  * Created by KET on 22-04-2015.
  */
 public class ApplicationSingleton extends Application {
-    private static ApplicationSingleton ourInstance;
+    private static ApplicationSingleton ourInstance = null;
 
     @Override
     public void onCreate(){
@@ -24,6 +24,7 @@ public class ApplicationSingleton extends Application {
     }
 
     public static ApplicationSingleton getInstance() {
+        if (ourInstance == null) ourInstance = new ApplicationSingleton();
         return ourInstance;
     }
 }
