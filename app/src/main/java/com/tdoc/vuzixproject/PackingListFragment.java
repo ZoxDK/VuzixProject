@@ -15,18 +15,21 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PackingListFragment extends ListFragment{
 
     private View rootView;
-    private List<String> itemList;
+    private List<String> itemList = new ArrayList<>();
     private int currentItemPos = 0;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // Temp for testing
+
 
         rootView = inflater.inflate(R.layout.fragment_packing_list, container, false);
 
@@ -38,17 +41,19 @@ public class PackingListFragment extends ListFragment{
                     Log.d("List return: ", ""+returnList.toString());
                     for (ParseObject item : returnList){
                         itemList.add(item.getString("item"));
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                                R.layout.listelements, itemList);
+                        setListAdapter(adapter);
                     }
+                    Log.d("itemList: ", itemList.toString());
 
                 } else {
-                    Log.d("score", "Error: " + e.getMessage());
+                    Log.d("List return: ", "Error: " + e.getMessage());
                 }
             }
         });
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.listelements, itemList);
-        setListAdapter(adapter);
+
         // Inflate the layout for this fragment
         return rootView;
     }
@@ -63,10 +68,10 @@ public class PackingListFragment extends ListFragment{
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
                 if (getListAdapter().getItem(currentItemPos).equals(""+scanResult.getContents())){
-
-                    currentItemPos++;
                     CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.list_elem_checkbox);
                     checkBox.setChecked(true);
+                    getListView().setItemChecked(currentItemPos, true);
+                    currentItemPos++;
                 }
 
             }

@@ -171,7 +171,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        if (voiceCtrl != null) voiceCtrl.destroy();
+        //if (voiceCtrl != null) voiceCtrl.destroy();
         //if (gestSensor != null) gestSensor = null;
     }
 }
