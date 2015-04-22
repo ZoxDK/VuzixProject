@@ -49,6 +49,7 @@ public class VoiceController extends VoiceControl {
             IntentIntegrator integrator = new IntentIntegrator(callingActivity);
             integrator.initiateScan();
         } else if (result.equals("back") && MainActivity.scannerIntentRunning){
+            Log.i("VoiceRecognition", "Back gotten");
             Intent intent = new Intent(context, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             context.startActivity(intent);

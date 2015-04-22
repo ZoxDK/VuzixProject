@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private int clickedTimes = 0;
     public static boolean isThereVoice = false, scannerIntentRunning = false;
     String model = "";
+    String[] wordList = {"back", "next"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if (checkVoiceRecognition() && model.equals("M100")) {
             voiceCtrl = new VoiceController(this, MainActivity.this);
             voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
+            voiceCtrl.setWordlist(wordList);
         }
         //gestSensor = new GestureController(this);
 
@@ -61,6 +64,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         //testObject.put("data1", "This is a test string.");
         //testObject.put("data2", 002);
         //testObject.saveInBackground();
+
+        // Keep screen on (requires WAKE_LOCK permission in manifest)
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     // Check if voice recognition is present
