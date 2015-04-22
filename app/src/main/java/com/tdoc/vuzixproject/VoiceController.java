@@ -2,6 +2,7 @@ package com.tdoc.vuzixproject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.vuzix.speech.VoiceControl;
@@ -44,8 +45,13 @@ public class VoiceController extends VoiceControl {
         // then start scanner intent.
         if (result.equals("next")) {
             Log.i("VoiceRecognition", "Next gotten");
+            MainActivity.scannerIntentRunning = true;
             IntentIntegrator integrator = new IntentIntegrator(callingActivity);
             integrator.initiateScan();
+        } else if (result.equals("back") && MainActivity.scannerIntentRunning){
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            context.startActivity(intent);
         }
     }
 

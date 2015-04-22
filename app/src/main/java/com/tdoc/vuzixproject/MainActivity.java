@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.GetCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -31,7 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private Button buttonTest, buttonTest2;
     private TextView tvData;
     private int clickedTimes = 0;
-    public boolean isThereVoice = false;
+    public static boolean isThereVoice = false, scannerIntentRunning = false;
     String model = "";
 
     @Override
@@ -75,7 +74,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             return false;
             }
         isThereVoice = true;
-        return isThereVoice;
+        return true;
     }
 
     @Override // Currently just for testing physical buttons and gestures on the M100
@@ -120,7 +119,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
-
+            scannerIntentRunning = false;
             // Convert to preferred ZXing IntentResult
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
@@ -166,7 +165,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onPause(){
         super.onPause();
-        if (isThereVoice) voiceCtrl.off();
+        if (isThereVoice && !scannerIntentRunning) voiceCtrl.off();
         //gestSensor.unregister();
     }
 
