@@ -52,12 +52,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         tvData = (TextView) findViewById(R.id.tvData);
 
-        // Enable Local Datastore. Currently not used and creates issues due to running before .initialize for some reason.
-        //Parse.enableLocalDatastore(this);
-
-        // Initialize Parse.com access, probably with user and project hashes.
-        Parse.initialize(this, "sbnDtByNJrzgQXik8HRac2HyUVhqkigKUOcbQ52g", "oTAXhgq4M8qHcvAfAxJKRQ07DyP2zJz1phdeut8r");
-
         // Parse.com test data push
         //ParseObject testObject = new ParseObject("OnlineData");
         //testObject.put("barcode", "KR05WP5W7176929HA11AA00");
