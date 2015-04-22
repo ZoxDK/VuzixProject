@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.speech.RecognizerIntent;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private Button buttonTest, buttonTest2;
     private TextView tvData;
     private int clickedTimes = 0;
+    public boolean isThereVoice = false;
+    String model = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +41,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         // Check for voice recognition ability of device, create object if there.
         // Add another grammar (for "scan next"). Best would be homemade grammar/.lcf file with wordlist.
+        model = Build.MODEL;
 
-        if (checkVoiceRecognition()) {
+        if (checkVoiceRecognition() && model.equals("M100")) {
             voiceCtrl = new VoiceController(this, MainActivity.this);
             voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
         }
-        gestSensor = new GestureController(this);
+        //gestSensor = new GestureController(this);
 
         buttonTest = (Button) findViewById(R.id.buttonTest);
         buttonTest2 = (Button) findViewById(R.id.buttonTest2);
@@ -54,8 +58,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         // Parse.com test data push
         //ParseObject testObject = new ParseObject("OnlineData");
-        //testObject.put("barcode", "KR05WP5W7176929HA11AA00");
-        //testObject.put("data1", "This is another test string.");
+        //testObject.put("barcode", "5060335631558");
+        //testObject.put("data1", "This is a test string.");
         //testObject.put("data2", 002);
         //testObject.saveInBackground();
     }
@@ -65,19 +69,24 @@ public class MainActivity extends Activity implements View.OnClickListener{
         PackageManager pm = getPackageManager();
         List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(
             RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-            if (activities.size() == 0) {
+            if (activities.size() == 0 || !model.equals("M100")) {
                 Toast.makeText(this, "Voice recognizer not present",
                 Toast.LENGTH_SHORT).show();
             return false;
             }
-        return true;
+        isThereVoice = true;
+        return isThereVoice;
     }
 
     @Override // Currently just for testing physical buttons and gestures on the M100
     public void onClick(View v) {
         if (v == buttonTest) {
-            Intent intent = new Intent(this, ButtonTestActivity.class);
-            startActivity(intent);
+            //Intent intent = new Intent(this, ButtonTestActivity.class);
+            //startActivity(intent);
+
+            // For testing scanner without voice controller useable (not using M100)
+            IntentIntegrator integrator = new IntentIntegrator(this);
+            integrator.initiateScan();
         } if (v == buttonTest2) {
             clickedTimes++;
             buttonTest2.setText("Button 2 clicked "+ clickedTimes + " times");
@@ -113,9 +122,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
 
             // Convert to preferred ZXing IntentResult
-            IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
-                Log.i("Scan result", scanResult.getContents());
+                Log.i("Scan result", ""+scanResult.getContents());
 
                 // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
@@ -132,6 +141,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                             // Let the user know if the object just couldn't be found, or if it's an actual error
                             if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
                                 tvData.setText("Barcode not found in system.\n" +
+                                        "Scanned data: " + scanResult.getContents() + ".\n" +
                                         "Please try again...");
                             } else {
                                 tvData.setText("And error occurred. Please try again...");
@@ -149,21 +159,21 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onResume(){
         super.onResume();
-        voiceCtrl.on();
-        gestSensor.register();
+        if (isThereVoice) voiceCtrl.on();
+        //gestSensor.register();
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        voiceCtrl.off();
-        gestSensor.unregister();
+        if (isThereVoice) voiceCtrl.off();
+        //gestSensor.unregister();
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
         if (voiceCtrl != null) voiceCtrl.destroy();
-        if (gestSensor != null) gestSensor = null;
+        //if (gestSensor != null) gestSensor = null;
     }
 }
