@@ -57,18 +57,22 @@ public class VoiceController extends VoiceControl {
                 MainActivity.scannerIntentRunning = true;
                 IntentIntegrator integrator = new IntentIntegrator(callingFragment);
                 integrator.initiateScan();
-            } else if (result.equals("back") && MainActivity.scannerIntentRunning) {
+
+            //} else if (result.equals("back") && MainActivity.scannerIntentRunning) {
+            } else if (result.equals("back")) {
                 Log.i("VoiceRecognition", "Back gotten");
 
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
+
             } else if (result.equals("next")) {
                 Log.i("VoiceRecognition", "Next gotten");
 
                 MainActivity.scannerIntentRunning = true;
                 IntentIntegrator integrator = new IntentIntegrator(callingFragment);
                 integrator.initiateScan();
+
             } else if (result.equals("packing list")){
                 Fragment fragment = new PackingListFragment();
                 callingFragment.getFragmentManager().beginTransaction()
@@ -76,10 +80,12 @@ public class VoiceController extends VoiceControl {
                         .replace(R.id.fragmentcontainer, fragment, "FRAG_PACK")
                         .addToBackStack(null)
                         .commit();
+
             } else if (result.equals("voice off")){
                 Log.i("VoiceRecognition", "Voice off gotten");
 
                 ApplicationSingleton.voiceOff = true;
+
             } else if (result.equals("perpetual inventory system")){
                 android.os.Process.killProcess(android.os.Process.myPid());
                 MainActivity.voiceCtrl.destroy();
