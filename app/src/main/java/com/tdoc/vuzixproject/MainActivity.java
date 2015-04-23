@@ -30,8 +30,8 @@ public class MainActivity extends Activity {
     private GestureController gestSensor;
     public static VoiceController voiceCtrl;
     public static boolean isThereVoice = false, scannerIntentRunning = false;
-    String model = "";
-    String[] wordList = {"back", "next", "bar code", "packing list", "perpetual inventory system"};
+    private String model = "";
+    private String[] wordList = {"back", "next", "bar code", "packing list", "perpetual inventory system"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

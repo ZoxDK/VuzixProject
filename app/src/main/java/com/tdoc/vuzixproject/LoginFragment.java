@@ -19,10 +19,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     //private Button buttonTest, buttonTest2;
     public static TextView instructions_login;
-    private EditText etLogin;
     private View rootView;
     public static boolean nameCorrect = false;
-    private String currentName = "";
+    private String currentUser = "";
+    private String currentUserName = "";
 
 
     @Override
@@ -37,8 +37,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         //buttonTest2.setOnClickListener(this);
 
         instructions_login = (TextView) rootView.findViewById(R.id.instructions_login);
-        etLogin = (EditText) rootView.findViewById(R.id.etLogin);
-        etLogin.setText("Name");
+        instructions_login.setText(R.string.instructions_login);
 
         // Inflate the layout for this fragment
         return rootView;
@@ -59,60 +58,48 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
+                currentUser = scanResult.getContents();
+                // Query Parse.com, as testing in regards to sending and receiving data
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
+                query.whereEqualTo("userBarcode", currentUser);
+                query.getFirstInBackground(new GetCallback<ParseObject>() {
+                    // done is run when background query task returns a result, hopefully with a result object
+                    public void done(ParseObject object, ParseException e) {
+                    if (e == null) {
+                        Log.d("data retrieved: ", object.getString("userName") + " and " + object.getString("userBarcode"));
+                        Log.d("Login: ", "Success!");
+                        currentUserName = object.getString("userName");
+                        Fragment fragment = new MainFragment();
+                        getFragmentManager().beginTransaction()
+                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                                .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                                .addToBackStack(null)
+                                .commit();
+                        MainActivity.voiceCtrl.setCallingFragment(fragment);
 
-                if (!nameCorrect) {
-                    etLogin.setText("" + scanResult.getContents());
-                    currentName = scanResult.getContents();
-                    instructions_login.setText("If the name in the field is correct, please say \"scan next\".");
-                } else {
-                    // Query Parse.com, as testing in regards to sending and receiving data
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("LoginCreds");
-                    query.whereEqualTo("name", currentName);
-                    query.getFirstInBackground(new GetCallback<ParseObject>() {
-                        // done is run when background query task returns a result, hopefully with a result object
-                        public void done(ParseObject object, ParseException e) {
-                            if (e == null) {
-                                Log.d("data retrieved: ", object.getString("name") + " and " + object.getString("pw"));
-                                if (object.getString("pw").equals(scanResult.getContents())){
-                                    Log.d("Login: ", "Success!");
-                                    Fragment fragment = new MainFragment();
-                                    getFragmentManager().beginTransaction()
-                                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
-                                            .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
-                                            .addToBackStack(null)
-                                            .commit();
-                                    MainActivity.voiceCtrl.setCallingFragment(fragment);
-                                    ApplicationSingleton.sharedPreferences.edit()
-                                            .putString("currentName", currentName)
-                                            .putString("pw", scanResult.getContents())
-                                            .commit();
-                                } else {
-                                    Log.d("Login: ", "Fail!");
-                                    instructions_login.setText("Login failed, please try again...");
-                                    nameCorrect = false;
-                                    etLogin.setText("Name");
-                                }
-                            } else {
-                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                                // Let the user know if the object just couldn't be found, or if it's an actual error
-                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                    instructions_login.setText("Name " + currentName + " not found in system.\n" +
-                                            "Scanned data: " + scanResult.getContents() + ".\n" +
-                                            "Please try again...");
-                                    nameCorrect = false;
-                                    currentName = "";
-                                    etLogin.setText("Name");
+                        ApplicationSingleton.sharedPreferences.edit()
+                                .putString("currentUser", currentUser)
+                                .putString("currentUserName", currentUserName)
+                                .commit();
+                    } else {
+                        Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                        // Let the user know if the object just couldn't be found, or if it's an actual error
+                        if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                            instructions_login.setText("Name " + currentUser + " not found in system.\n" +
+                                    "Scanned data: " + scanResult.getContents() + ".\n" +
+                                    "Please try again...");
+                            nameCorrect = false;
+                            currentUser = "";
 
-                                } else {
-                                    instructions_login.setText("And error occurred. Please try again...");
-                                    nameCorrect = false;
-                                    currentName = "";
-                                    etLogin.setText("Name");
-                                }
-                            }
-                        }
-                    });
-                }
+                        } else {
+                            instructions_login.setText("And error occurred. Please try again...");
+                            nameCorrect = false;
+                            currentUser = "";
+                      }
+                    }
+                    }
+                });
+
             }
         }
     }
