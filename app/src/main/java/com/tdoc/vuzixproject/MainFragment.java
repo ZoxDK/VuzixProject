@@ -56,6 +56,12 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        MainActivity.voiceCtrl.setCallingFragment(this);
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         // Currently only getting scan results, but check for request code to be sure

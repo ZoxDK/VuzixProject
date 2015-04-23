@@ -20,7 +20,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     //private Button buttonTest, buttonTest2;
     public static TextView instructions_login;
     private View rootView;
-    public static boolean nameCorrect = false;
     private String currentUser = "";
     private String currentUserName = "";
 
@@ -47,6 +46,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override // Currently just for testing physical buttons and gestures on the M100
     public void onClick(View v) {
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        MainActivity.voiceCtrl.setCallingFragment(this);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -88,12 +93,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                             instructions_login.setText("Name " + currentUser + " not found in system.\n" +
                                     "Scanned data: " + scanResult.getContents() + ".\n" +
                                     "Please try again...");
-                            nameCorrect = false;
                             currentUser = "";
 
                         } else {
                             instructions_login.setText("And error occurred. Please try again...");
-                            nameCorrect = false;
                             currentUser = "";
                       }
                     }

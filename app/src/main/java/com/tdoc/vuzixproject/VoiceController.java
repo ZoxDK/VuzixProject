@@ -67,7 +67,6 @@ public class VoiceController extends VoiceControl {
                 Log.i("VoiceRecognition", "Next gotten");
 
                 MainActivity.scannerIntentRunning = true;
-                LoginFragment.nameCorrect = true;
                 IntentIntegrator integrator = new IntentIntegrator(callingFragment);
                 integrator.initiateScan();
             } else if (result.equals("packing list")){
@@ -77,7 +76,6 @@ public class VoiceController extends VoiceControl {
                         .replace(R.id.fragmentcontainer, fragment, "FRAG_PACK")
                         .addToBackStack(null)
                         .commit();
-                callingFragment = fragment;
             } else if (result.equals("voice off")){
                 Log.i("VoiceRecognition", "Voice off gotten");
 

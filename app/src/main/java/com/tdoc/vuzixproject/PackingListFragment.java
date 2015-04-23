@@ -1,13 +1,12 @@
 package com.tdoc.vuzixproject;
 
-import android.app.ListFragment;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -21,7 +20,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PackingListFragment extends ListFragment{
+public class PackingListFragment extends Fragment {
 
     private View rootView;
     private int currentItemPos = 0;
@@ -32,7 +31,7 @@ public class PackingListFragment extends ListFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        rootView = inflater.inflate(R.layout.fragment_login, container, false);
+        rootView = inflater.inflate(R.layout.fragment_packing_list, container, false);
 
         tableLayout = (TableLayout) rootView.findViewById(R.id.packinglistTable);
 
@@ -41,6 +40,12 @@ public class PackingListFragment extends ListFragment{
 
         // Inflate the layout for this fragment
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        MainActivity.voiceCtrl.setCallingFragment(this);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -53,7 +58,7 @@ public class PackingListFragment extends ListFragment{
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("PackingList");
-                query.orderByDescending("Order");
+                query.orderByAscending("Order");
                 query.findInBackground(new FindCallback<ParseObject>() {
                     public void done(List<ParseObject> returnList, ParseException e) {
                         if (e == null) {
