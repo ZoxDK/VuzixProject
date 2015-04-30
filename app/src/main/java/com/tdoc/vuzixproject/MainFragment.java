@@ -1,6 +1,7 @@
 package com.tdoc.vuzixproject;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -21,6 +22,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     private TextView tvData;
     private int clickedTimes = 0;
     private View rootView;
+    private ExternalCommunication extComm;
 
 
     @Override
@@ -30,7 +32,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
-        startPackingListButton = (Button) rootView.findViewById(R.id.buttonTest2);
+        startPackingListButton = (Button) rootView.findViewById(R.id.startPackingListButton);
         startScanButton.setOnClickListener(this);
         startPackingListButton.setOnClickListener(this);
 
@@ -51,6 +53,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
             integrator.initiateScan();
 
         } if (v == startPackingListButton) {
+            Log.i("Button pressed: ", "startPackingListButton");
             Fragment fragment = new PackingListFragment();
             this.getFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
@@ -63,7 +66,7 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onStart() {
         super.onStart();
-        MainActivity.voiceCtrl.setCallingFragment(this);
+        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -101,6 +104,37 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 });
 
             }
+        }
+    }
+
+    public class connectTask extends AsyncTask<String, String, ExternalCommunication> {
+
+        @Override
+        protected ExternalCommunication doInBackground(String... message) {
+
+            //we create a TCPClient object and
+            extComm = new ExternalCommunication(new ExternalCommunication.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    publishProgress(message);
+                }
+            });
+            extComm.run();
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+
+            //in the arrayList we add the messaged received from server
+            arrayList.add(values[0]);
+            // notify the adapter that the data set has changed. This means that new message received
+            // from server was added to the list
+            mAdapter.notifyDataSetChanged();
         }
     }
 

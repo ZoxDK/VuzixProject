@@ -1,6 +1,7 @@
 package com.tdoc.vuzixproject;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -23,6 +24,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private View rootView;
     private String currentUser = "";
     private String currentUserName = "";
+    private ExternalCommunication extComm;
 
 
     @Override
@@ -57,7 +59,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        MainActivity.voiceCtrl.setCallingFragment(this);
+        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -110,6 +112,37 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 });
 
             }
+        }
+    }
+
+    public class connectTask extends AsyncTask<String, String, ExternalCommunication> {
+
+        @Override
+        protected ExternalCommunication doInBackground(String... message) {
+
+            //we create a TCPClient object and
+            extComm = new ExternalCommunication(new ExternalCommunication.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    publishProgress(message);
+                }
+            });
+            extComm.run();
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+
+            //in the arrayList we add the messaged received from server
+            arrayList.add(values[0]);
+            // notify the adapter that the data set has changed. This means that new message received
+            // from server was added to the list
+            mAdapter.notifyDataSetChanged();
         }
     }
 

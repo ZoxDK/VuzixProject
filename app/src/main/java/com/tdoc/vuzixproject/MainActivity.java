@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.speech.RecognizerIntent;
 import android.os.Bundle;
@@ -58,7 +59,7 @@ public class MainActivity extends Activity {
             getFragmentManager().beginTransaction()
                     .add(R.id.fragmentcontainer, fragment, "FRAG_LOGIN")
                     .commit();
-            voiceCtrl.setCallingFragment(fragment);
+            if (isThereVoice) voiceCtrl.setCallingFragment(fragment);
         }
 
         // Parse.com test data push
@@ -107,6 +108,7 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
     /***********************
      * Ensure that activity doesn't keep listening when not in focus, and clean up once destroyed.

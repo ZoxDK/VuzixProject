@@ -3,6 +3,7 @@ package com.tdoc.vuzixproject;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     private int currentItemPos = 0;
     private ArrayList<String> itemList = new ArrayList<>();
     private TableLayout tableLayout;
+    private ExternalCommunication extComm;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,7 +50,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v == backButton){
-            Log.i("VoiceRecognition", "Back gotten");
+            Log.i("Button pressed: ", "backButton");
             Context context = ApplicationSingleton.getInstance();
 
             Intent intent = new Intent(context, MainActivity.class);
@@ -60,7 +62,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     @Override
     public void onStart() {
         super.onStart();
-        MainActivity.voiceCtrl.setCallingFragment(this);
+        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -103,6 +105,36 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                 });
 
             }
+        }
+    }
+    public class connectTask extends AsyncTask<String, String, ExternalCommunication> {
+
+        @Override
+        protected ExternalCommunication doInBackground(String... message) {
+
+            //we create a TCPClient object and
+            extComm = new ExternalCommunication(new ExternalCommunication.OnMessageReceived() {
+                @Override
+                //here the messageReceived method is implemented
+                public void messageReceived(String message) {
+                    //this method calls the onProgressUpdate
+                    publishProgress(message);
+                }
+            });
+            extComm.run();
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+
+            //in the arrayList we add the messaged received from server
+            arrayList.add(values[0]);
+            // notify the adapter that the data set has changed. This means that new message received
+            // from server was added to the list
+            mAdapter.notifyDataSetChanged();
         }
     }
 
