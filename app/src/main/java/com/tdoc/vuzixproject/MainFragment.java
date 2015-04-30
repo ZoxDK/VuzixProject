@@ -17,7 +17,7 @@ import com.parse.ParseQuery;
 
 public class MainFragment extends Fragment implements View.OnClickListener{
 
-    private Button buttonTest, buttonTest2;
+    private Button startScanButton, startPackingListButton;
     private TextView tvData;
     private int clickedTimes = 0;
     private View rootView;
@@ -29,10 +29,10 @@ public class MainFragment extends Fragment implements View.OnClickListener{
 
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        buttonTest = (Button) rootView.findViewById(R.id.buttonTest);
-        buttonTest2 = (Button) rootView.findViewById(R.id.buttonTest2);
-        buttonTest.setOnClickListener(this);
-        buttonTest2.setOnClickListener(this);
+        startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
+        startPackingListButton = (Button) rootView.findViewById(R.id.buttonTest2);
+        startScanButton.setOnClickListener(this);
+        startPackingListButton.setOnClickListener(this);
 
         tvData = (TextView) rootView.findViewById(R.id.tvData);
 
@@ -41,18 +41,22 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     }
 
 
-    @Override // Currently just for testing physical buttons and gestures on the M100
+    @Override // Currently just for testing physical buttons and gestures on the M100, and for use on phones
     public void onClick(View v) {
-        if (v == buttonTest) {
-            //Intent intent = new Intent(this, ButtonTestActivity.class);
-            //startActivity(intent);
+        if (v == startScanButton) {
+            Log.i("Button pressed: ", "startScanButton");
 
-            // For testing scanner without voice controller useable (not using M100)
+            MainActivity.scannerIntentRunning = true;
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
-        } if (v == buttonTest2) {
-            clickedTimes++;
-            buttonTest2.setText("Button 2 clicked "+ clickedTimes + " times");
+
+        } if (v == startPackingListButton) {
+            Fragment fragment = new PackingListFragment();
+            this.getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_PACK")
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 

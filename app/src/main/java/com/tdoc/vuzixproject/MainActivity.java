@@ -108,49 +108,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    /*public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        // Currently only getting scan results, but check for request code to be sure
-        if (requestCode == IntentIntegrator.REQUEST_CODE) {
-            scannerIntentRunning = false;
-            // Convert to preferred ZXing IntentResult
-            final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-            if (scanResult != null) {
-                Log.i("Scan result", ""+scanResult.getContents());
-
-                Fragment f = this.getFragmentManager().findFragmentById(R.id.fragmentcontainer);
-                if (f instanceof LoginFragment){
-
-                } else if (f instanceof MainFragment) {
-
-                    // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
-                    query.whereEqualTo("barcode", scanResult.getContents());
-                    query.getFirstInBackground(new GetCallback<ParseObject>() {
-                        // done is run when background query task returns a result, hopefully with a result object
-                        public void done(ParseObject object, ParseException e) {
-                            if (e == null) {
-                                Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
-                                MainFragment.tvData.setText("String data received: " + object.getString("data1") + "\n");
-                                MainFragment.tvData.append("Integer data received: " + object.getInt("data2"));
-                            } else {
-                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                                // Let the user know if the object just couldn't be found, or if it's an actual error
-                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                    MainFragment.tvData.setText("Barcode not found in system.\n" +
-                                            "Scanned data: " + scanResult.getContents() + ".\n" +
-                                            "Please try again...");
-                                } else {
-                                    MainFragment.tvData.setText("And error occurred. Please try again...");
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        }
-    }*/
-
     /***********************
      * Ensure that activity doesn't keep listening when not in focus, and clean up once destroyed.
      **********************/

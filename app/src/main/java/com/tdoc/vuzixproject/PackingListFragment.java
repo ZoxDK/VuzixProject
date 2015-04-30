@@ -1,12 +1,14 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -20,9 +22,10 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PackingListFragment extends Fragment {
+public class PackingListFragment extends Fragment implements View.OnClickListener {
 
     private View rootView;
+    private Button backButton;
     private int currentItemPos = 0;
     private ArrayList<String> itemList = new ArrayList<>();
     private TableLayout tableLayout;
@@ -35,11 +38,23 @@ public class PackingListFragment extends Fragment {
 
         tableLayout = (TableLayout) rootView.findViewById(R.id.packinglistTable);
 
-        //buttonTest2 = (Button) rootView.findViewById(R.id.buttonTest2);
-        //buttonTest.setOnClickListener(this);
+        backButton = (Button) rootView.findViewById(R.id.backButton);
+        backButton.setOnClickListener(this);
 
         // Inflate the layout for this fragment
         return rootView;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == backButton){
+            Log.i("VoiceRecognition", "Back gotten");
+            Context context = ApplicationSingleton.getInstance();
+
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            context.startActivity(intent);
+        }
     }
 
     @Override

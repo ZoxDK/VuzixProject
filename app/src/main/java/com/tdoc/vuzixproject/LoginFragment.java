@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -17,7 +18,7 @@ import com.parse.ParseQuery;
 
 public class LoginFragment extends Fragment implements View.OnClickListener {
 
-    //private Button buttonTest, buttonTest2;
+    private Button startScanButton;
     public static TextView instructions_login;
     private View rootView;
     private String currentUser = "";
@@ -30,10 +31,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
-        //buttonTest = (Button) rootView.findViewById(R.id.buttonTest);
-        //buttonTest2 = (Button) rootView.findViewById(R.id.buttonTest2);
-        //buttonTest.setOnClickListener(this);
-        //buttonTest2.setOnClickListener(this);
+        startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
+        startScanButton.setOnClickListener(this);
 
         instructions_login = (TextView) rootView.findViewById(R.id.instructions_login);
         instructions_login.setText(R.string.instructions_login);
@@ -43,8 +42,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    @Override // Currently just for testing physical buttons and gestures on the M100
+    @Override // Currently just for testing physical buttons and gestures on the M100, and for use on phones
     public void onClick(View v) {
+        if (v == startScanButton){
+            Log.i("Button pressed: ", "startScanButton");
+
+            MainActivity.scannerIntentRunning = true;
+            IntentIntegrator integrator = new IntentIntegrator(this);
+            integrator.initiateScan();
+        }
 
     }
 

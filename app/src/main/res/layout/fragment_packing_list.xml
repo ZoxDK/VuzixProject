@@ -1,20 +1,31 @@
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/packinglistTable"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context="com.tdoc.vuzixproject.PackingListFragment"
-    android:orientation="vertical">
+    tools:context="com.tdoc.vuzixproject.PackingListFragment">
 
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/packinglistTable">
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Packing list:"
+                android:id="@+id/header"
+                android:layout_column="0"
+                android:textSize="20sp" />
+        </TableRow>
+    </TableLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Packing list:"
-            android:id="@+id/header"
-            android:layout_column="0"
-            android:textSize="20sp" />
-    </TableRow>
-</TableLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:id="@+id/backButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+</RelativeLayout>

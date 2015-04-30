@@ -6,7 +6,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView"
         android:textSize="20dp"
-        android:layout_alignBottom="@+id/buttonTest"
+        android:layout_alignBottom="@+id/startScanButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginLeft="53dp"
@@ -15,8 +15,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test button"
-        android:id="@+id/buttonTest"
+        android:text="Start scanner"
+        android:id="@+id/startScanButton"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
@@ -30,15 +30,15 @@
         android:layout_alignLeft="@+id/textView"
         android:layout_alignStart="@+id/textView"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/buttonTest"
-        android:layout_toStartOf="@+id/buttonTest" />
+        android:layout_toLeftOf="@+id/startScanButton"
+        android:layout_toStartOf="@+id/startScanButton" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test button2"
-        android:id="@+id/buttonTest2"
-        android:layout_below="@+id/buttonTest"
+        android:text="Packing list"
+        android:id="@+id/startPackingListButton"
+        android:layout_below="@+id/startScanButton"
         android:layout_toRightOf="@+id/tvData"
         android:layout_toEndOf="@+id/tvData" />
 
