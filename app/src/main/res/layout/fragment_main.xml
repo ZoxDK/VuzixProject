@@ -2,44 +2,30 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="com.tdoc.vuzixproject.MainFragment">
 
-    <TextView android:text="Data:" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:textSize="20dp"
-        android:layout_alignBottom="@+id/startScanButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="53dp"
-        android:layout_marginStart="53dp" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start scanner"
+        android:text="Scan"
         android:id="@+id/startScanButton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/instructions_main"
+        android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tvData"
-        android:layout_below="@+id/textView"
-        android:layout_alignLeft="@+id/textView"
-        android:layout_alignStart="@+id/textView"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/startScanButton"
-        android:layout_toStartOf="@+id/startScanButton" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Say the word on the button to start that action"
+        android:id="@+id/instructions_main"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Packing list"
+        android:text="Packing List"
         android:id="@+id/startPackingListButton"
         android:layout_below="@+id/startScanButton"
-        android:layout_toRightOf="@+id/tvData"
-        android:layout_toEndOf="@+id/tvData" />
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

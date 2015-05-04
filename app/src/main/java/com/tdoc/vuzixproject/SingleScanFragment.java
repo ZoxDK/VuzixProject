@@ -16,27 +16,27 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-public class LoginFragment extends Fragment implements View.OnClickListener {
+public class SingleScanFragment extends Fragment implements View.OnClickListener{
 
-    private Button startScanButton;
-    public static TextView instructions_login;
+    private Button startScanButton, menuButton;
+    private TextView tvData;
     private View rootView;
-    private String currentUser = "";
-    private String currentUserName = "";
     private ExternalCommunication extComm;
+    private String[] wordList = {"back", "menu", "scan", "perpetual inventory system"};
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        rootView = inflater.inflate(R.layout.fragment_login, container, false);
+        rootView = inflater.inflate(R.layout.fragment_single_scan, container, false);
 
         startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
+        menuButton = (Button) rootView.findViewById(R.id.menuButton);
         startScanButton.setOnClickListener(this);
+        menuButton.setOnClickListener(this);
 
-        instructions_login = (TextView) rootView.findViewById(R.id.instructions_login);
-        instructions_login.setText(R.string.instructions_login);
+        tvData = (TextView) rootView.findViewById(R.id.tvData);
 
         // Inflate the layout for this fragment
         return rootView;
@@ -45,20 +45,31 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     @Override // Currently just for testing physical buttons and gestures on the M100, and for use on phones
     public void onClick(View v) {
-        if (v == startScanButton){
+        if (v == startScanButton) {
             Log.i("Button pressed: ", "startScanButton");
 
             MainActivity.scannerIntentRunning = true;
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
-        }
 
+        } if (v == menuButton) {
+            Log.i("Button pressed: ", "menuButton");
+            Fragment fragment = new MainFragment();
+            this.getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
+        if (MainActivity.isThereVoice){
+            MainActivity.voiceCtrl.setCallingFragment(this);
+            MainActivity.voiceCtrl.setWordlist(wordList);
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -70,42 +81,28 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
-                currentUser = scanResult.getContents();
-                // Query Parse.com, as testing in regards to sending and receiving data
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
-                query.whereEqualTo("userBarcode", currentUser);
+
+                // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
+                query.whereEqualTo("barcode", scanResult.getContents());
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
                     // done is run when background query task returns a result, hopefully with a result object
                     public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        Log.d("data retrieved: ", object.getString("userName") + " and " + object.getString("userBarcode"));
-                        Log.d("Login: ", "Success!");
-                        currentUserName = object.getString("userName");
-                        Fragment fragment = new MainFragment();
-                        getFragmentManager().beginTransaction()
-                                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
-                                .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
-                                .addToBackStack(null)
-                                .commit();
-
-                        ApplicationSingleton.sharedPreferences.edit()
-                                .putString("currentUser", currentUser)
-                                .putString("currentUserName", currentUserName)
-                                .commit();
-                    } else {
-                        Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                        // Let the user know if the object just couldn't be found, or if it's an actual error
-                        if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                            instructions_login.setText("Name " + currentUser + " not found in system.\n" +
-                                    "Scanned data: " + scanResult.getContents() + ".\n" +
-                                    "Please try again...");
-                            currentUser = "";
-
+                        if (e == null) {
+                            Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
+                            tvData.setText("String data received: " + object.getString("data1") + "\n");
+                            tvData.append("Integer data received: " + object.getInt("data2"));
                         } else {
-                            instructions_login.setText("And error occurred. Please try again...");
-                            currentUser = "";
-                      }
-                    }
+                            Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                            // Let the user know if the object just couldn't be found, or if it's an actual error
+                            if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                                tvData.setText("Barcode not found in system.\n" +
+                                        "Scanned data: " + scanResult.getContents() + ".\n" +
+                                        "Please try again...");
+                            } else {
+                                tvData.setText("And error occurred. Please try again...");
+                            }
+                        }
                     }
                 });
 

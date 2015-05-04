@@ -66,8 +66,8 @@ public class VoiceController extends VoiceControl {
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
 
-            } else if (result.equals("next")) {
-                Log.i("VoiceRecognition", "Next gotten");
+            } else if (result.equals("scan")) {
+                Log.i("VoiceRecognition", "Scan gotten");
 
                 MainActivity.scannerIntentRunning = true;
                 IntentIntegrator integrator = new IntentIntegrator(callingFragment);

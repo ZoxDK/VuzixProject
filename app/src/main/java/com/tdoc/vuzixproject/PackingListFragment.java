@@ -31,6 +31,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     private ArrayList<String> itemList = new ArrayList<>();
     private TableLayout tableLayout;
     private ExternalCommunication extComm;
+    private String[] wordList = {"back", "menu", "scan", "perpetual inventory system"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,19 +51,23 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v == backButton){
-            Log.i("Button pressed: ", "backButton");
-            Context context = ApplicationSingleton.getInstance();
-
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            context.startActivity(intent);
+            Log.i("Button pressed: ", "menuButton");
+            Fragment fragment = new MainFragment();
+            this.getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
+        if (MainActivity.isThereVoice){
+            MainActivity.voiceCtrl.setCallingFragment(this);
+            MainActivity.voiceCtrl.setWordlist(wordList);
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -131,10 +136,11 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
             super.onProgressUpdate(values);
 
             //in the arrayList we add the messaged received from server
-            arrayList.add(values[0]);
+            itemList.add(values[0]);
             // notify the adapter that the data set has changed. This means that new message received
             // from server was added to the list
-            mAdapter.notifyDataSetChanged();
+
+            //mAdapter.notifyDataSetChanged();
         }
     }
 

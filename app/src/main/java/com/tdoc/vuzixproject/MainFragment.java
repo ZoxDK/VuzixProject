@@ -1,7 +1,5 @@
 package com.tdoc.vuzixproject;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -9,20 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-
-public class MainFragment extends Fragment implements View.OnClickListener{
-
+public class MainFragment extends Fragment implements View.OnClickListener {
     private Button startScanButton, startPackingListButton;
-    private TextView tvData;
-    private int clickedTimes = 0;
     private View rootView;
-    private ExternalCommunication extComm;
+    private String[] wordList = {"back", "scan", "packing list", "perpetual inventory system"};
 
 
     @Override
@@ -36,8 +25,6 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         startScanButton.setOnClickListener(this);
         startPackingListButton.setOnClickListener(this);
 
-        tvData = (TextView) rootView.findViewById(R.id.tvData);
-
         // Inflate the layout for this fragment
         return rootView;
     }
@@ -48,12 +35,16 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         if (v == startScanButton) {
             Log.i("Button pressed: ", "startScanButton");
 
-            MainActivity.scannerIntentRunning = true;
-            IntentIntegrator integrator = new IntentIntegrator(this);
-            integrator.initiateScan();
+            Fragment fragment = new SingleScanFragment();
+            this.getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
+                    .addToBackStack(null)
+                    .commit();
 
         } if (v == startPackingListButton) {
             Log.i("Button pressed: ", "startPackingListButton");
+
             Fragment fragment = new PackingListFragment();
             this.getFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
@@ -66,75 +57,9 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onStart() {
         super.onStart();
-        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        // Currently only getting scan results, but check for request code to be sure
-        if (requestCode == IntentIntegrator.REQUEST_CODE) {
-            MainActivity.scannerIntentRunning = false;
-            // Convert to preferred ZXing IntentResult
-            final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-            if (scanResult != null) {
-                Log.i("Scan result", "" + scanResult.getContents());
-
-                // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
-                query.whereEqualTo("barcode", scanResult.getContents());
-                query.getFirstInBackground(new GetCallback<ParseObject>() {
-                    // done is run when background query task returns a result, hopefully with a result object
-                    public void done(ParseObject object, ParseException e) {
-                        if (e == null) {
-                            Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
-                            tvData.setText("String data received: " + object.getString("data1") + "\n");
-                            tvData.append("Integer data received: " + object.getInt("data2"));
-                        } else {
-                            Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                            // Let the user know if the object just couldn't be found, or if it's an actual error
-                            if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                tvData.setText("Barcode not found in system.\n" +
-                                        "Scanned data: " + scanResult.getContents() + ".\n" +
-                                        "Please try again...");
-                            } else {
-                                tvData.setText("And error occurred. Please try again...");
-                            }
-                        }
-                    }
-                });
-
-            }
-        }
-    }
-
-    public class connectTask extends AsyncTask<String, String, ExternalCommunication> {
-
-        @Override
-        protected ExternalCommunication doInBackground(String... message) {
-
-            //we create a TCPClient object and
-            extComm = new ExternalCommunication(new ExternalCommunication.OnMessageReceived() {
-                @Override
-                //here the messageReceived method is implemented
-                public void messageReceived(String message) {
-                    //this method calls the onProgressUpdate
-                    publishProgress(message);
-                }
-            });
-            extComm.run();
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-
-            //in the arrayList we add the messaged received from server
-            arrayList.add(values[0]);
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
-            mAdapter.notifyDataSetChanged();
+        if (MainActivity.isThereVoice){
+            MainActivity.voiceCtrl.setCallingFragment(this);
+            MainActivity.voiceCtrl.setWordlist(wordList);
         }
     }
 
