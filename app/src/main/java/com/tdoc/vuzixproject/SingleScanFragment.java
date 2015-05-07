@@ -133,11 +133,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
 
-            //in the arrayList we add the messaged received from server
-            arrayList.add(values[0]);
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
-            mAdapter.notifyDataSetChanged();
+            tvData.setText(values[0]);
         }
     }
 

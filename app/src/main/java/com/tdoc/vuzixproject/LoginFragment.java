@@ -136,11 +136,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
 
-            //in the arrayList we add the messaged received from server
-            arrayList.add(values[0]);
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
-            mAdapter.notifyDataSetChanged();
+            Log.d("Login: ", "Success!");
+            currentUserName = values[0];
+            Fragment fragment = new MainFragment();
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
