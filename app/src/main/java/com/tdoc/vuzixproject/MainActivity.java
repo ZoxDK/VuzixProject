@@ -1,27 +1,18 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.speech.RecognizerIntent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.vuzix.speech.Constants;
 
 import java.util.List;
@@ -32,7 +23,7 @@ public class MainActivity extends Activity {
     public static VoiceController voiceCtrl;
     public static boolean isThereVoice = false, scannerIntentRunning = false;
     private String model = "";
-    private String[] wordList = {"back", "next", "bar code", "packing list", "perpetual inventory system"};
+    private String[] wordList = {"back", "next", "scan", "bar code", "packing list", "perpetual inventory system"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -74,6 +74,16 @@ public class VoiceController extends VoiceControl {
                 integrator.initiateScan();
 
             } else if (result.equals("packing list")){
+                Fragment fragment = new MainFragment();
+                callingFragment.getFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                        .addToBackStack(null)
+                        .commit();
+
+            } else if (result.equals("menu")) {
+                Log.i("VoiceRecognition", "Menu gotten");
+
                 Fragment fragment = new PackingListFragment();
                 callingFragment.getFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)

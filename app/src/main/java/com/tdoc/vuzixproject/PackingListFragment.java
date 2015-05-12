@@ -31,7 +31,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     private ArrayList<String> itemList = new ArrayList<>();
     private TableLayout tableLayout;
     private ExternalCommunication extComm;
-    private String[] wordList = {"back", "menu", "scan", "perpetual inventory system"};
+    private String[] wordList = {"back", "menu", "scan", "bar code", "perpetual inventory system"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,7 +41,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
 
         tableLayout = (TableLayout) rootView.findViewById(R.id.packinglistTable);
 
-        backButton = (Button) rootView.findViewById(R.id.backButton);
+        backButton = (Button) rootView.findViewById(R.id.menuButton);
         backButton.setOnClickListener(this);
 
         // Inflate the layout for this fragment

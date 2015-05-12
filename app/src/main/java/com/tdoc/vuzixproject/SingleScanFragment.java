@@ -22,7 +22,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
     private TextView tvData;
     private View rootView;
     private ExternalCommunication extComm;
-    private String[] wordList = {"back", "menu", "scan", "perpetual inventory system"};
+    private String[] wordList = {"back", "menu", "scan", "bar code", "perpetual inventory system"};
 
 
     @Override
