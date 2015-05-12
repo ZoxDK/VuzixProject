@@ -82,6 +82,13 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
 
+                // T-DOC communications
+                new connectTask().execute("");
+                //sends the message to the server
+                if (extComm != null) {
+                    extComm.sendMessage(scanResult.getContents());
+                }
+
                 // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
                 query.whereEqualTo("barcode", scanResult.getContents());
