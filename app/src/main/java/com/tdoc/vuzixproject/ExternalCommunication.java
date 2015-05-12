@@ -15,7 +15,7 @@ import java.net.Socket;
  */
 public class ExternalCommunication {
     private String serverMessage;
-    private static final String SERVER_IP = "127.0.0.1";
+    private static final String SERVER_IP = "10.0.0.100";
     private static final int SERVER_PORT = 6667;
     private boolean mRun = false;
     private OnMessageReceived mMessageListener = null;
