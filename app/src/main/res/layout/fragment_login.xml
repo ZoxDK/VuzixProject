@@ -32,7 +32,8 @@
         android:text="Start scanner"
         android:id="@+id/startScanButton"
         android:layout_below="@+id/etLogin"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        />
 
 
 </RelativeLayout>
