@@ -13,6 +13,7 @@ public class ApplicationSingleton extends Application {
     private static ApplicationSingleton ourInstance = null;
     public static SharedPreferences sharedPreferences;
     public static boolean voiceOff = false;
+    private static boolean isTDOCConnected = false;
 
     @Override
     public void onCreate(){
@@ -32,4 +33,13 @@ public class ApplicationSingleton extends Application {
         if (ourInstance == null) ourInstance = new ApplicationSingleton();
         return ourInstance;
     }
+
+    public static boolean isTDOCConnected() {
+        return isTDOCConnected;
+    }
+
+    public static void setIsTDOCConnected(boolean isTDOCConnected) {
+        ApplicationSingleton.isTDOCConnected = isTDOCConnected;
+    }
+
 }

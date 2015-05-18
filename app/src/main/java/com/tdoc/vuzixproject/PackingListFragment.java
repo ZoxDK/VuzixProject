@@ -14,8 +14,10 @@ import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -28,7 +30,9 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     private View rootView;
     private Button backButton;
     private int currentItemPos = 0;
-    private ArrayList<String> itemList = new ArrayList<>();
+    private boolean hasActiveList = false;
+    private String currentListBarcode, currentBarcode;
+    private ArrayList<ParseObject> itemList = new ArrayList<>();
     private TableLayout tableLayout;
     private ExternalCommunication extComm;
     private String[] wordList = {"back", "menu", "scan", "bar code", "perpetual inventory system"};
@@ -75,40 +79,79 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
         // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             MainActivity.scannerIntentRunning = false;
+
             // Convert to preferred ZXing IntentResult
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
-                Log.i("Scan result", "" + scanResult.getContents());
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("PackingList");
-                query.orderByAscending("Order");
-                query.findInBackground(new FindCallback<ParseObject>() {
-                    public void done(List<ParseObject> returnList, ParseException e) {
-                        if (e == null) {
-                            Log.d("List return: ", ""+returnList.toString());
-                            for (ParseObject item : returnList){
-                                itemList.add(item.getString("item"));
-                                TableRow tableRow = new TableRow(getActivity());
-                                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                currentBarcode = scanResult.getContents();
 
-                                TextView tv = new TextView(getActivity());
-                                tv.setText(""+item.getString("item"));
-                                tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                                CheckBox cb = new CheckBox(getActivity());
-                                cb.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                                cb.setChecked(item.getBoolean("ScannedYet"));
-                                tableRow.addView(tv,0);
-                                tableRow.addView(cb,1);
+                // Only do Parse.com queries if we are not connected to T-DOC;
+                // This is for testing purposes only
+                if (!ApplicationSingleton.isTDOCConnected()) {
+                    // If no list, get one; otherwise scans should compare to list
+                    if (!hasActiveList) {
+                        currentListBarcode = currentBarcode;
+                        ApplicationSingleton.sharedPreferences.edit()
+                                .putString("currentPacklistBarcode", currentListBarcode)
+                                .commit();
+                        Log.i("Scan result", "" + currentListBarcode);
 
-                                tableLayout.addView(tableRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery(currentListBarcode);
+                        query.orderByAscending("Order");
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            public void done(List<ParseObject> returnList, ParseException e) {
+                                if (e == null) {
+                                    Log.d("List return: ", "" + returnList.toString());
+                                    for (ParseObject item : returnList) {
+
+                                        itemList.add(item);
+                                        TableRow tableRow = new TableRow(getActivity());
+                                        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+                                        TextView tv = new TextView(getActivity());
+                                        tv.setText("" + item.getString("item"));
+                                        tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                                        CheckBox cb = new CheckBox(getActivity());
+                                        cb.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                                        cb.setChecked(item.getBoolean("ScannedYet"));
+                                        cb.setId(item.getInt("Order") - 1);
+                                        tableRow.addView(tv, 0);
+                                        tableRow.addView(cb, 1);
+                                        hasActiveList = true;
+
+                                        tableLayout.addView(tableRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                                    }
+                                    Log.d("itemList: ", itemList.toString());
+
+                                } else {
+                                    Log.d("List return: ", "Error: " + e.getMessage());
+                                }
                             }
-                            Log.d("itemList: ", itemList.toString());
+                        });
+                    } else {
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery(currentListBarcode);
+                        query.whereEqualTo("item", currentBarcode);
+                        query.getFirstInBackground(new GetCallback<ParseObject>() {
+                            public void done(ParseObject object, ParseException e) {
+                                if (e == null) {
+                                    Log.d("List item: ", "" + object.toString());
 
-                        } else {
-                            Log.d("List return: ", "Error: " + e.getMessage());
-                        }
+                                    CheckBox cb = (CheckBox) tableLayout.findViewById(object.getInt("Order") - 1);
+                                    cb.setChecked(true);
+
+                                } else {
+                                    if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                                        Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Item" + object.getString("item") + " not found in list.\n" +
+                                                "Scanned data: " + scanResult.getContents() + ".\n" +
+                                                "Please try again...", Toast.LENGTH_LONG)
+                                                .show();
+
+                                    } else Log.d("Item return: ", "Error: " + e.getMessage());
+                                }
+                            }
+                        });
                     }
-                });
-
+                }
             }
         }
     }
@@ -136,12 +179,33 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
             super.onProgressUpdate(values);
 
             //in the arrayList we add the messaged received from server
-            itemList.add(values[0]);
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
+            if (hasActiveList && ApplicationSingleton.isTDOCConnected()){
+                // If return starts with A it's an Acknowledge
+                if (values[0].startsWith("A")){
+                    Log.d("T-DOC returns:", "Ack: "+values[0]);
+                    for (ParseObject item : itemList){
+                        if (item.getString("item").equals(currentBarcode) && !item.getBoolean("ScannedYet")){
+                            CheckBox cb = (CheckBox) tableLayout.findViewById(item.getInt("Order"));
+                            cb.setChecked(true);
+                        }
+                    }
 
-            //mAdapter.notifyDataSetChanged();
+                // If return starts with N it's a Not acknowledged
+                } else if (values[0].startsWith("N")){
+                    Log.d("T-DOC returns:", "Nack: "+values[0]);
+                    Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Error: " + values[0]+ ".\n" +
+                            "Scanned data: " + currentBarcode + ".\n" +
+                            "Please try again...", Toast.LENGTH_LONG)
+                            .show();
+                // Must have been an error since prefix is neither A nor N
+                } else {
+                    Log.d("T-DOC returns:", "Error: "+values[0]);
+                    Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Error: " + values[0]+ ".\n" +
+                            "Scanned data: " + currentBarcode + ".\n" +
+                            "Please try again...", Toast.LENGTH_LONG)
+                            .show();
+                }
+            }
         }
     }
-
 }
