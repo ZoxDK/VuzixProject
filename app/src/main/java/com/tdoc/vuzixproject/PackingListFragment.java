@@ -22,6 +22,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //super.onCreateView(inflater, container, savedInstanceState);
 
         rootView = inflater.inflate(R.layout.fragment_packing_list, container, false);
 
@@ -85,16 +87,26 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
             if (scanResult != null) {
                 currentBarcode = scanResult.getContents();
 
+                // T-DOC communications
+                new connectTask().execute("");
+                //sends the message to the server
+                if (extComm != null) {
+                    extComm.sendMessage(scanResult.getContents());
+                }
+
                 // Only do Parse.com queries if we are not connected to T-DOC;
                 // This is for testing purposes only
                 if (!ApplicationSingleton.isTDOCConnected()) {
                     // If no list, get one; otherwise scans should compare to list
                     if (!hasActiveList) {
                         currentListBarcode = currentBarcode;
+                        //currentListBarcode.toLowerCase();
+                        //currentListBarcode.replace(" ", "_");
                         ApplicationSingleton.sharedPreferences.edit()
                                 .putString("currentPacklistBarcode", currentListBarcode)
                                 .commit();
-                        Log.i("Scan result", "" + currentListBarcode);
+                        System.out.println("No active list");
+                        Log.i("Scan result", "" + currentBarcode);
 
                         ParseQuery<ParseObject> query = ParseQuery.getQuery(currentListBarcode);
                         query.orderByAscending("Order");
@@ -129,6 +141,9 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                             }
                         });
                     } else {
+                        System.out.println("Active list");
+                        Log.d("Scan result", "" + currentBarcode);
+
                         ParseQuery<ParseObject> query = ParseQuery.getQuery(currentListBarcode);
                         query.whereEqualTo("item", currentBarcode);
                         query.getFirstInBackground(new GetCallback<ParseObject>() {

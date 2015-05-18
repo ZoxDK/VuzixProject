@@ -73,7 +73,9 @@ public class VoiceController extends VoiceControl {
                 IntentIntegrator integrator = new IntentIntegrator(callingFragment);
                 integrator.initiateScan();
 
-            } else if (result.equals("packing list")){
+            } else if (result.equals("menu")){
+                Log.i("VoiceRecognition", "Menu gotten");
+
                 Fragment fragment = new MainFragment();
                 callingFragment.getFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
@@ -81,8 +83,8 @@ public class VoiceController extends VoiceControl {
                         .addToBackStack(null)
                         .commit();
 
-            } else if (result.equals("menu")) {
-                Log.i("VoiceRecognition", "Menu gotten");
+            } else if (result.equals("packing list")) {
+                Log.i("VoiceRecognition", "Packing list gotten");
 
                 Fragment fragment = new PackingListFragment();
                 callingFragment.getFragmentManager().beginTransaction()

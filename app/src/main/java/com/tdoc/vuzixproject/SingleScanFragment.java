@@ -89,30 +89,32 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                     extComm.sendMessage(scanResult.getContents());
                 }
 
-                // Query Parse.com, as testing in regards to sending and receiving data, for data to the result
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
-                query.whereEqualTo("barcode", scanResult.getContents());
-                query.getFirstInBackground(new GetCallback<ParseObject>() {
-                    // done is run when background query task returns a result, hopefully with a result object
-                    public void done(ParseObject object, ParseException e) {
-                        if (e == null) {
-                            Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
-                            tvData.setText("String data received: " + object.getString("data1") + "\n");
-                            tvData.append("Integer data received: " + object.getInt("data2"));
-                        } else {
-                            Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                            // Let the user know if the object just couldn't be found, or if it's an actual error
-                            if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                tvData.setText("Barcode not found in system.\n" +
-                                        "Scanned data: " + scanResult.getContents() + ".\n" +
-                                        "Please try again...");
+                // Only do Parse.com queries if we are not connected to T-DOC;
+                // This is for testing purposes only
+                if (!ApplicationSingleton.isTDOCConnected()) {
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
+                    query.whereEqualTo("barcode", scanResult.getContents());
+                    query.getFirstInBackground(new GetCallback<ParseObject>() {
+                        // done is run when background query task returns a result, hopefully with a result object
+                        public void done(ParseObject object, ParseException e) {
+                            if (e == null) {
+                                Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
+                                tvData.setText("String data received: " + object.getString("data1") + "\n");
+                                tvData.append("Integer data received: " + object.getInt("data2"));
                             } else {
-                                tvData.setText("And error occurred. Please try again...");
+                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                                // Let the user know if the object just couldn't be found, or if it's an actual error
+                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                                    tvData.setText("Barcode not found in system.\n" +
+                                            "Scanned data: " + scanResult.getContents() + ".\n" +
+                                            "Please try again...");
+                                } else {
+                                    tvData.setText("And error occurred. Please try again...");
+                                }
                             }
                         }
-                    }
-                });
-
+                    });
+                }
             }
         }
     }

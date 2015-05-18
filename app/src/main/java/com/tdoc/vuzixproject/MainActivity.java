@@ -56,7 +56,6 @@ public class MainActivity extends Activity {
         // Parse.com test data push
         //ParseObject testObject = new ParseObject("LoginCreds");
         //testObject.put("name", "Ketil Kirchhof");
-        //testObject.put("pw", "Getinge!");
         //testObject.put("data2", 002);
         //testObject.saveInBackground();
 
