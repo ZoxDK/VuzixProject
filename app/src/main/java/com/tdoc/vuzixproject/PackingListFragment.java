@@ -170,7 +170,8 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
             }
         }
     }
-    public class connectTask extends AsyncTask<String, String, ExternalCommunication> {
+
+    private class connectTask extends AsyncTask<String, String, ExternalCommunication> {
 
         @Override
         protected ExternalCommunication doInBackground(String... message) {
@@ -204,6 +205,8 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                             cb.setChecked(true);
                         }
                     }
+                    // TODO: Play some sound to indicate ACK
+                    // Also, can there be several of the same item?
 
                 // If return starts with N it's a Not acknowledged
                 } else if (values[0].startsWith("N")){
@@ -212,6 +215,8 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                             "Scanned data: " + currentBarcode + ".\n" +
                             "Please try again...", Toast.LENGTH_LONG)
                             .show();
+                    // TODO: Play some sound to indicate NACK.
+
                 // Must have been an error since prefix is neither A nor N
                 } else {
                     Log.d("T-DOC returns:", "Error: "+values[0]);
