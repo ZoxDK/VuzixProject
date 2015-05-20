@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 
 import com.parse.Parse;
 
+import java.util.Queue;
+
 /**
  * Created by KET on 22-04-2015.
  */
@@ -14,6 +16,7 @@ public class ApplicationSingleton extends Application {
     public static SharedPreferences sharedPreferences;
     public static boolean voiceOff = false;
     private static boolean isTDOCConnected = false;
+    private Queue scanQueue = new Queue();
 
     @Override
     public void onCreate(){
