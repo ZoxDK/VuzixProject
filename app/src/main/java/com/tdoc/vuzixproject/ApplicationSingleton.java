@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 import com.parse.Parse;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -16,7 +17,7 @@ public class ApplicationSingleton extends Application {
     public static SharedPreferences sharedPreferences;
     public static boolean voiceOff = false;
     private static boolean isTDOCConnected = false;
-    private Queue scanQueue = new Queue();
+    private static Queue<String> scanQueue = new LinkedList();
 
     @Override
     public void onCreate(){
@@ -43,6 +44,11 @@ public class ApplicationSingleton extends Application {
 
     public static void setIsTDOCConnected(boolean isTDOCConnected) {
         ApplicationSingleton.isTDOCConnected = isTDOCConnected;
+    }
+
+
+    public static Queue getScanQueue() {
+        return scanQueue;
     }
 
 }

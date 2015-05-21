@@ -1,6 +1,9 @@
 package com.tdoc.vuzixproject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -10,11 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class SingleScanFragment extends Fragment implements View.OnClickListener{
 
@@ -81,44 +89,84 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
+                Queue scanQueue = ApplicationSingleton.getScanQueue();
+                System.out.println(scanQueue.peek());
+                System.out.println(ApplicationSingleton.getScanQueue().peek());
 
-                //First test if WiFi is available, otherwise save locally
-
-                // T-DOC communications - try to connect to T-DOC server on WiFi
-                new connectTask().execute("");
-                //sends the message to the server
-                if (extComm != null) {
-                    extComm.sendMessage(scanResult.getContents());
+                // Check if there was backlogged scans saved - if so, ask to send
+                if (!ApplicationSingleton.sharedPreferences.getString("scanQueue", "").equals("")){
+                    // TODO: Add popup asking for "complete" or "ignore" backlog
+                    Gson gson = new Gson();
+                    scanQueue = gson.fromJson(ApplicationSingleton.sharedPreferences.getString("scanQueue", ""), LinkedList.class);
                 }
 
-                // Only do Parse.com queries if we are not connected to T-DOC;
-                // This is for testing purposes only
-                if (!ApplicationSingleton.isTDOCConnected()) {
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
-                    query.whereEqualTo("barcode", scanResult.getContents());
-                    query.getFirstInBackground(new GetCallback<ParseObject>() {
-                        // done is run when background query task returns a result, hopefully with a result object
-                        public void done(ParseObject object, ParseException e) {
-                            if (e == null) {
-                                Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
-                                tvData.setText("String data received: " + object.getString("data1") + "\n");
-                                tvData.append("Integer data received: " + object.getInt("data2"));
-                            } else {
-                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                                // Let the user know if the object just couldn't be found, or if it's an actual error
-                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                    tvData.setText("Barcode not found in system.\n" +
-                                            "Scanned data: " + scanResult.getContents() + ".\n" +
-                                            "Please try again...");
-                                } else {
-                                    tvData.setText("And error occurred. Please try again...");
-                                }
+                // Add scan to queue for no WiFi situations
+                if (!scanQueue.offer(scanResult.getContents())){
+                    Toast.makeText(this.getActivity(), "Error adding scan result to result queue...", Toast.LENGTH_SHORT)
+                    .show();
+                } else {
+                    // Ensure WiFi is connected
+                    ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                    if (wifiInfo.isConnected()) {
+
+                        // Only do Parse.com queries if we are not connected to T-DOC;
+                        // This is for testing purposes only
+                        if (!ApplicationSingleton.isTDOCConnected()) {
+                            // Sends messages in the queue to Parse.com
+                            while (scanQueue.peek() != null)
+                                parseCommunication(scanQueue.poll().toString());
+
+                        } else {
+                            // T-DOC communications - try to connect to T-DOC server on WiFi
+                            new connectTask().execute("");
+                            //sends the messages in the queue to the server
+                            if (extComm != null) {
+                                while (scanQueue.peek() != null)
+                                    extComm.sendMessage(scanQueue.poll().toString());
                             }
                         }
-                    });
+
+                    }
+                    // Save what is in the queue - if there was WiFi, it should be empty
+                    // Otherwise, the result will have been added to the queue with the .offer()
+                    Gson gson = new Gson();
+                    String json;
+                    if (!scanQueue.isEmpty()) {
+                        json = gson.toJson(scanQueue);
+                    } else {
+                        json = "";
+                    }
+                    Log.d("SingScan Json", "Json to be put in preferences: " + json);
+                    ApplicationSingleton.sharedPreferences.edit().putString("scanQueue", json).commit();
+
                 }
             }
         }
+    }
+    private void parseCommunication(final String scanResults){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
+        query.whereEqualTo("barcode", scanResults);
+        query.getFirstInBackground(new GetCallback<ParseObject>() {
+            // done is run when background query task returns a result, hopefully with a result object
+            public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
+                    tvData.setText("String data received: " + object.getString("data1") + "\n");
+                    tvData.append("Integer data received: " + object.getInt("data2"));
+                } else {
+                    Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                    // Let the user know if the object just couldn't be found, or if it's an actual error
+                    if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                        tvData.setText("Barcode not found in system.\n" +
+                                "Scanned data: " + scanResults + ".\n" +
+                                "Please try again...");
+                    } else {
+                        tvData.setText("And error occurred. Please try again...");
+                    }
+                }
+            }
+        });
     }
 
     public class connectTask extends AsyncTask<String, String, ExternalCommunication> {
