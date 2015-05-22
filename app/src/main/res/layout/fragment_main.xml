@@ -40,6 +40,7 @@
         android:layout_alignParentStart="false"
         android:textSize="20sp"
         android:layout_centerHorizontal="true"
-        android:gravity="center|top" />
+        android:gravity="center|top"
+        android:text="Welcome &lt;username>" />
 
 </RelativeLayout>

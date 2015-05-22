@@ -5,6 +5,6 @@
     <string name="title_activity_button_test">ButtonTestActivity</string>
     <string name="login">Log in</string>
     <string name="instructions_login">Please say BAR CODE to start scanner</string>
-    <string name="buttonScan">Scan</string>
+    <string name="buttonScan">Bar code</string>
 
 </resources>

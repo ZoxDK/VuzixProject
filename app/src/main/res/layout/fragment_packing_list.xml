@@ -16,7 +16,8 @@
                 android:text="Packing list:"
                 android:id="@+id/header"
                 android:layout_column="0"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:layout_marginLeft="10dp" />
         </TableRow>
     </TableLayout>
 
