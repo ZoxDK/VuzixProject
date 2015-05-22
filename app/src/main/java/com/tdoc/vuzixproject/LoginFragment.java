@@ -72,56 +72,59 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 Log.i("Scan result", "" + scanResult.getContents());
                 currentUser = scanResult.getContents();
 
-                // T-DOC communications
-                new connectTask().execute("");
-                //sends the message to the server
-                if (extComm != null) {
-                    extComm.sendMessage(scanResult.getContents());
-                }
-
                 // Only do Parse.com queries if we are not connected to T-DOC;
                 // This is for testing purposes only
                 if (!ApplicationSingleton.isTDOCConnected()) {
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
-                    query.whereEqualTo("userBarcode", currentUser);
-                    query.getFirstInBackground(new GetCallback<ParseObject>() {
-                        // done is run when background query task returns a result, hopefully with a result object
-                        public void done(ParseObject object, ParseException e) {
-                            if (e == null) {
-                                Log.d("data retrieved: ", object.getString("userName") + " and " + object.getString("userBarcode"));
-                                Log.d("Login: ", "Success!");
-                                currentUserName = object.getString("userName");
-                                Fragment fragment = new MainFragment();
-                                getFragmentManager().beginTransaction()
-                                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
-                                        .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
-                                        .addToBackStack(null)
-                                        .commit();
-
-                                ApplicationSingleton.sharedPreferences.edit()
-                                        .putString("currentUser", currentUser)
-                                        .putString("currentUserName", currentUserName)
-                                        .commit();
-                            } else {
-                                Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                                // Let the user know if the object just couldn't be found, or if it's an actual error
-                                if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                                    instructions_login.setText("Name " + currentUser + " not found in system.\n" +
-                                            "Scanned data: " + scanResult.getContents() + ".\n" +
-                                            "Please try again...");
-                                    currentUser = "";
-
-                                } else {
-                                    instructions_login.setText("And error occurred. Please try again...");
-                                    currentUser = "";
-                                }
-                            }
-                        }
-                    });
+                    parseCommunication(currentUser);
+                } else {
+                    // T-DOC communications
+                    new connectTask().execute("");
+                    //sends the message to the server
+                    if (extComm != null) {
+                        extComm.sendMessage(currentUser);
+                    }
                 }
-
             }
         }
+    }
+
+    private void parseCommunication(final String scanResults) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
+        query.whereEqualTo("userBarcode", scanResults);
+        query.getFirstInBackground(new GetCallback<ParseObject>() {
+            // done is run when background query task returns a result, hopefully with a result object
+            public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    Log.d("Login: ", "Name: " + object.getString("userName") + " and code: " + object.getString("userBarcode"));
+                    Log.d("Login: ", "Success!");
+                    currentUserName = object.getString("userName");
+                    Fragment fragment = new MainFragment();
+                    getFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                            .replace(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                            .addToBackStack(null)
+                            .commit();
+
+                    ApplicationSingleton.sharedPreferences.edit()
+                            .putString("currentUser", currentUser)
+                            .putString("currentUserName", currentUserName)
+                            .commit();
+                } else {
+                    Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
+                    // Let the user know if the object just couldn't be found, or if it's an actual error
+                    if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                        instructions_login.setText("Name " + currentUser + " not found in system.\n" +
+                                "Scanned data: " + scanResults + ".\n" +
+                                "Please try again...");
+                        currentUser = "";
+
+                    } else {
+                        instructions_login.setText("And error occurred. Please try again...");
+                        currentUser = "";
+                    }
+                }
+            }
+        });
     }
 
     private class connectTask extends AsyncTask<String, String, ExternalCommunication> {

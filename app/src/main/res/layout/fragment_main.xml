@@ -5,10 +5,13 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Scan"
+        android:text="@string/buttonScan"
         android:id="@+id/startScanButton"
         android:layout_below="@+id/instructions_main"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignRight="@+id/startPackingListButton"
+        android:layout_alignEnd="@+id/startPackingListButton"
+        android:layout_alignLeft="@+id/startPackingListButton"
+        android:layout_alignStart="@+id/startPackingListButton" />
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Say the word on the button to start that action"
@@ -16,9 +19,9 @@
         android:textSize="20sp"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/tvUser"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -27,5 +30,16 @@
         android:id="@+id/startPackingListButton"
         android:layout_below="@+id/startScanButton"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvUser"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:gravity="center|top" />
 
 </RelativeLayout>

@@ -5,7 +5,7 @@
 
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/packinglistTable">
+        android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/packinglistTable">
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
@@ -23,12 +23,19 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/buttonScan"
+        android:id="@+id/startScanButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Menu"
         android:id="@+id/menuButton"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:layout_below="@+id/startScanButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

@@ -30,7 +30,6 @@ public class ApplicationSingleton extends Application {
 
         // Initialize Parse.com access, probably with user and project hashes.
         Parse.initialize(this, "sbnDtByNJrzgQXik8HRac2HyUVhqkigKUOcbQ52g", "oTAXhgq4M8qHcvAfAxJKRQ07DyP2zJz1phdeut8r");
-
     }
 
     public static ApplicationSingleton getInstance() {

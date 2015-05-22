@@ -66,12 +66,15 @@ public class VoiceController extends VoiceControl {
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
 
-            } else if (result.equals("scan")) {
-                Log.i("VoiceRecognition", "Scan gotten");
+            } else if (result.equals("order")) {
+                Log.i("VoiceRecognition", "Order gotten");
 
-                MainActivity.scannerIntentRunning = true;
-                IntentIntegrator integrator = new IntentIntegrator(callingFragment);
-                integrator.initiateScan();
+                Fragment fragment = new SingleScanFragment();
+                callingFragment.getFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
+                        .addToBackStack(null)
+                        .commit();
 
             } else if (result.equals("menu")){
                 Log.i("VoiceRecognition", "Menu gotten");

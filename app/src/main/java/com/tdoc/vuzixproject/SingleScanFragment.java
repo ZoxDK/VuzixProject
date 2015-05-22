@@ -60,7 +60,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
 
-        } if (v == menuButton) {
+        } else if (v == menuButton) {
             Log.i("Button pressed: ", "menuButton");
             Fragment fragment = new MainFragment();
             this.getFragmentManager().beginTransaction()
@@ -90,8 +90,6 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
                 Queue scanQueue = ApplicationSingleton.getScanQueue();
-                System.out.println(scanQueue.peek());
-                System.out.println(ApplicationSingleton.getScanQueue().peek());
 
                 // Check if there was backlogged scans saved - if so, ask to send
                 if (!ApplicationSingleton.sharedPreferences.getString("scanQueue", "").equals("")){
@@ -114,7 +112,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                         // This is for testing purposes only
                         if (!ApplicationSingleton.isTDOCConnected()) {
                             // Sends messages in the queue to Parse.com
-                            while (scanQueue.peek() != null)
+                            while (!scanQueue.isEmpty())
                                 parseCommunication(scanQueue.poll().toString());
 
                         } else {
@@ -122,7 +120,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                             new connectTask().execute("");
                             //sends the messages in the queue to the server
                             if (extComm != null) {
-                                while (scanQueue.peek() != null)
+                                while (!scanQueue.isEmpty())
                                     extComm.sendMessage(scanQueue.poll().toString());
                             }
                         }
