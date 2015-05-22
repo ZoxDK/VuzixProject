@@ -5,7 +5,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/buttonScan"
+        android:text="Order"
         android:id="@+id/startScanButton"
         android:layout_below="@+id/instructions_main"
         android:layout_alignRight="@+id/startPackingListButton"

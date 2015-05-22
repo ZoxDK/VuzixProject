@@ -19,11 +19,10 @@ import java.util.List;
 
 
 public class MainActivity extends Activity {
-    private GestureController gestSensor;
     public static VoiceController voiceCtrl;
     public static boolean isThereVoice = false, scannerIntentRunning = false;
     private String model = "";
-    private String[] wordList = {"back", "next", "scan", "bar code", "packing list", "perpetual inventory system"};
+    private String[] wordList = {"back", "bar code", "perpetual inventory system"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

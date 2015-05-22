@@ -137,6 +137,9 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                             }
                         }
 
+                    } else {
+                        Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "No network connection. Saving following to queue: " + scanQueue.peek(), Toast.LENGTH_LONG)
+                                .show();
                     }
                     // Save what is in the queue - if there was WiFi, it should be empty
                     // Otherwise, the result will have been added to the queue with the .offer()
