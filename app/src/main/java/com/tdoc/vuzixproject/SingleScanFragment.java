@@ -107,6 +107,8 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                     ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                     if (wifiInfo.isConnected()) {
+                        // T-DOC communications - try to connect to T-DOC server on WiFi
+                        new connectTask().execute("");
 
                         // Only do Parse.com queries if we are not connected to T-DOC;
                         // This is for testing purposes only
@@ -116,9 +118,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                                 parseCommunication(scanQueue.poll().toString());
 
                         } else {
-                            // T-DOC communications - try to connect to T-DOC server on WiFi
-                            new connectTask().execute("");
-                            //sends the messages in the queue to the server
+                            // Send the messages in the queue to the T-DOC server
                             if (extComm != null) {
                                 while (!scanQueue.isEmpty())
                                     extComm.sendMessage(scanQueue.poll().toString());
