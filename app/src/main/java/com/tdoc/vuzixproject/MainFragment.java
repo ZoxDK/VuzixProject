@@ -62,9 +62,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        if (MainActivity.isThereVoice){
-            MainActivity.voiceCtrl.setCallingFragment(this);
-            MainActivity.voiceCtrl.setWordlist(wordList);
+        if (ApplicationSingleton.isThereVoice){
+            ApplicationSingleton.getVoiceCtrl().setCallingFragment(this);
+            //ApplicationSingleton.getVoiceCtrl().setWordlist(wordList);
         }
     }
 

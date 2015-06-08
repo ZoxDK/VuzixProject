@@ -58,7 +58,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        if (MainActivity.isThereVoice) MainActivity.voiceCtrl.setCallingFragment(this);
+        if (ApplicationSingleton.isThereVoice) ApplicationSingleton.getVoiceCtrl().setCallingFragment(this);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {

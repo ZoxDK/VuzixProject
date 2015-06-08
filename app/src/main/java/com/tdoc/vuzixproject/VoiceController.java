@@ -38,7 +38,7 @@ public class VoiceController extends VoiceControl {
     // If word is recognized in grammars and is on wordlist, if any, onRecognition is called.
     @Override
     protected void onRecognition(String result) {
-        Log.i("VoiceRecognition", result);
+        Log.d("VC recognized: ", result);
 
         // Check if supposed to listen for voice
         // ! Currently, the M100 turns off the mic and only listens for Voice On, if Voice Off is given

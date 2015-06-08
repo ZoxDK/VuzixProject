@@ -45,7 +45,7 @@ public class ApplicationSingleton extends Application {
             voiceCtrl = new VoiceController(getBaseContext());
             voiceCtrl.addGrammar(Constants.GRAMMAR_WAREHOUSE);
             voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
-            voiceCtrl.setWordlist(wordList);
+            //voiceCtrl.setWordlist(wordList);
         }
 
         // Enable Local Datastore. Currently not used and creates issues due to running before .initialize for some reason.
