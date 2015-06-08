@@ -13,7 +13,6 @@ import com.vuzix.speech.VoiceControl;
  */
 public class VoiceController extends VoiceControl {
     private Context context;
-    private Activity callingActivity;
     private Fragment callingFragment;
 
     public void setCallingFragment(Fragment callingFragment) {
@@ -23,12 +22,6 @@ public class VoiceController extends VoiceControl {
     public VoiceController(Context context){
         super(context);
         this.context = context;
-
-    }
-    public VoiceController(Context context, Activity activity){
-        super(context);
-        this.context = context;
-        this.callingActivity = activity;
 
     }
 
@@ -63,7 +56,7 @@ public class VoiceController extends VoiceControl {
                 Log.i("VoiceRecognition", "Back gotten");
 
                 Intent intent = new Intent(context, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
 
             } else if (result.equals("order")) {
@@ -103,7 +96,7 @@ public class VoiceController extends VoiceControl {
 
             } else if (result.equals("perpetual inventory system")){
                 android.os.Process.killProcess(android.os.Process.myPid());
-                MainActivity.voiceCtrl.destroy();
+                ApplicationSingleton.getVoiceCtrl().destroy();
             }
 
         } else if (result.equals("voice on")){

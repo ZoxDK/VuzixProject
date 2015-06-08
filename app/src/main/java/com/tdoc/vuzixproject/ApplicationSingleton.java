@@ -1,12 +1,20 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.speech.RecognizerIntent;
+import android.widget.Toast;
 
 import com.parse.Parse;
+import com.vuzix.speech.Constants;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -15,6 +23,10 @@ import java.util.Queue;
 public class ApplicationSingleton extends Application {
     private static ApplicationSingleton ourInstance = null;
     public static SharedPreferences sharedPreferences;
+    private static VoiceController voiceCtrl;
+    public String model = "";
+    private String[] wordList = {"back", "bar code", "perpetual inventory system"};
+    public static boolean isThereVoice = false;
     public static boolean voiceOff = false;
     private static boolean isTDOCConnected = false;
     private static Queue<String> scanQueue = new LinkedList();
@@ -25,11 +37,35 @@ public class ApplicationSingleton extends Application {
         ourInstance = this;
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ourInstance);
+        // Check for voice recognition ability of device, create object if there.
+        // Add another grammar (for "scan next"). Best would be homemade grammar/.lcf file with wordlist.
+        model = Build.MODEL;
+
+        if (checkVoiceRecognition() && model.equals("M100")) {
+            voiceCtrl = new VoiceController(getBaseContext());
+            voiceCtrl.addGrammar(Constants.GRAMMAR_WAREHOUSE);
+            voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
+            voiceCtrl.setWordlist(wordList);
+        }
+
         // Enable Local Datastore. Currently not used and creates issues due to running before .initialize for some reason.
         //Parse.enableLocalDatastore(this);
 
         // Initialize Parse.com access, probably with user and project hashes.
         Parse.initialize(this, "sbnDtByNJrzgQXik8HRac2HyUVhqkigKUOcbQ52g", "oTAXhgq4M8qHcvAfAxJKRQ07DyP2zJz1phdeut8r");
+    }
+    // Check if voice recognition is present
+    public boolean checkVoiceRecognition() {
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(
+                RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+        if (activities.size() == 0 || !model.equals("M100")) {
+            Toast.makeText(this, "Voice recognizer not present",
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        isThereVoice = true;
+        return true;
     }
 
     public static ApplicationSingleton getInstance() {
@@ -45,6 +81,7 @@ public class ApplicationSingleton extends Application {
         ApplicationSingleton.isTDOCConnected = isTDOCConnected;
     }
 
+    public static VoiceController getVoiceCtrl(){return voiceCtrl;}
 
     public static Queue getScanQueue() {
         return scanQueue;
