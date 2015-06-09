@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -96,6 +97,9 @@ public class ExternalCommunication {
                 ApplicationSingleton.setIsTDOCConnected(false);
             }
 
+        } catch (ConnectException e){
+            ApplicationSingleton.setIsTDOCConnected(false);
+            Log.e("TCP", "C: ConnectException - timed out");
         } catch (Exception e) {
             ApplicationSingleton.setIsTDOCConnected(false);
             Log.e("TCP", "C: Error", e);
