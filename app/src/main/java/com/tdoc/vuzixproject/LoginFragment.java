@@ -108,6 +108,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     ApplicationSingleton.sharedPreferences.edit()
                             .putString("currentUser", currentUser)
                             .putString("currentUserName", currentUserName)
+                            .putLong("loginTime", System.currentTimeMillis())
                             .commit();
                 } else {
                     Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());

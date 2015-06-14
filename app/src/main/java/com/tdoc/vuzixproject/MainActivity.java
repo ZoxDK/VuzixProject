@@ -1,6 +1,7 @@
 package com.tdoc.vuzixproject;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,10 +24,22 @@ public class MainActivity extends Activity {
 
         // Add first fragment
         if (savedInstanceState == null) {
-            LoginFragment fragment = new LoginFragment();
-            getFragmentManager().beginTransaction()
-                    .add(R.id.fragmentcontainer, fragment, "FRAG_LOGIN")
-                    .commit();
+            Fragment fragment;
+            // Only do login screen if it has been more than 24 hours (in milliseconds)
+            // or if there's been no prior login (default -1).
+            // Using currTimeMil gives time since 1/1/1970, meaning we don't have to account for daylight savings.
+            if ((System.currentTimeMillis() - ApplicationSingleton.sharedPreferences.getLong("loginTime", -1)) > 86400000) {
+                fragment = new LoginFragment();
+                getFragmentManager().beginTransaction()
+                        .add(R.id.fragmentcontainer, fragment, "FRAG_LOGIN")
+                        .commit();
+            } else {
+                fragment = new MainFragment();
+                getFragmentManager().beginTransaction()
+                        .add(R.id.fragmentcontainer, fragment, "FRAG_MAIN")
+                        .addToBackStack(null)
+                        .commit();
+            }
             if (ApplicationSingleton.isThereVoice) ApplicationSingleton.getVoiceCtrl().setCallingFragment(fragment);
         }
 
