@@ -7,4 +7,7 @@
     <string name="instructions_login">Please say BAR CODE to start scanner</string>
     <string name="buttonScan">Bar code</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

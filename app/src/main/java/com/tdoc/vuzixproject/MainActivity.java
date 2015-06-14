@@ -25,10 +25,18 @@ public class MainActivity extends Activity {
         // Add first fragment
         if (savedInstanceState == null) {
             Fragment fragment;
+
+            // Always run setup first, to be able to access server
+            if (ApplicationSingleton.sharedPreferences.getString("SERVER_IP", "").equals("")){
+                fragment = new SetupFragment();
+                getFragmentManager().beginTransaction()
+                        .add(R.id.fragmentcontainer, fragment, "FRAG_SETUP")
+                        .commit();
+            }
             // Only do login screen if it has been more than 24 hours (in milliseconds)
             // or if there's been no prior login (default -1).
             // Using currTimeMil gives time since 1/1/1970, meaning we don't have to account for daylight savings.
-            if ((System.currentTimeMillis() - ApplicationSingleton.sharedPreferences.getLong("loginTime", -1)) > 86400000) {
+            else if ((System.currentTimeMillis() - ApplicationSingleton.sharedPreferences.getLong("loginTime", -1)) > 86400000) {
                 fragment = new LoginFragment();
                 getFragmentManager().beginTransaction()
                         .add(R.id.fragmentcontainer, fragment, "FRAG_LOGIN")
