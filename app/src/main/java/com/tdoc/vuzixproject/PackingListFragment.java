@@ -14,16 +14,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.sql.SQLOutput;
 import java.util.ArrayList;
@@ -119,22 +113,12 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                     ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                     if (wifiInfo.isConnected()) {
-
-                        // Only do Parse.com queries if we are not connected to T-DOC;
-                        // This is for testing purposes only
-                        if (!ApplicationSingleton.isTDOCConnected()) {
-                            // Sends messages in the queue to Parse.com
+                        // T-DOC communications - try to connect to T-DOC server on WiFi
+                        new connectTask().execute("");
+                        //sends the messages in the queue to the server
+                        if (extComm != null) {
                             while (!scanQueue.isEmpty())
-                                parseCommunication(scanQueue.poll().toString());
-
-                        } else {
-                            // T-DOC communications - try to connect to T-DOC server on WiFi
-                            new connectTask().execute("");
-                            //sends the messages in the queue to the server
-                            if (extComm != null) {
-                                while (!scanQueue.isEmpty())
-                                    extComm.sendMessage(scanQueue.poll().toString());
-                            }
+                                extComm.sendMessage(scanQueue.poll().toString());
                         }
 
                     } else {
@@ -155,79 +139,6 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
 
                 }
             }
-        }
-    }
-
-    private void parseCommunication(final String scanResults){
-        // If no list, get one; otherwise scans should compare to list
-        if (!hasActiveList) {
-            currentListBarcode = scanResults;
-            //currentListBarcode.toLowerCase();
-            //currentListBarcode.replace(" ", "_");
-            ApplicationSingleton.sharedPreferences.edit()
-                    .putString("currentPacklistBarcode", currentListBarcode)
-                    .commit();
-            System.out.println("No current active list");
-            Log.i("Scan result", "" + scanResults);
-            hasActiveList = true;
-
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(currentListBarcode);
-            query.orderByAscending("Order");
-            query.findInBackground(new FindCallback<ParseObject>() {
-                public void done(List<ParseObject> returnList, ParseException e) {
-                    if (e == null) {
-                        Log.d("List return: ", "" + returnList.toString());
-                        for (ParseObject item : returnList) {
-
-                            itemList.add(item);
-                            TableRow tableRow = new TableRow(getActivity());
-                            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
-                            TextView tv = new TextView(getActivity());
-                            tv.setText("" + item.getString("item"));
-                            tv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                            CheckBox cb = new CheckBox(getActivity());
-                            cb.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-                            cb.setChecked(item.getBoolean("ScannedYet"));
-                            cb.setId(item.getInt("Order") - 1);
-                            tableRow.addView(tv, 0);
-                            tableRow.addView(cb, 1);
-
-                            tableLayout.addView(tableRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
-                        }
-                        Log.d("itemList: ", itemList.toString());
-
-                    } else {
-                        Log.e("List return: ", "Error: " + e.getMessage());
-                    }
-                }
-            });
-        } else {
-            System.out.println("Active list");
-            Log.d("Scan result", "" + scanResults);
-            Log.d("sharedPref currListCode", "" + ApplicationSingleton.sharedPreferences.getString("currentPacklistBarcode", ""));
-
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(ApplicationSingleton.sharedPreferences.getString("currentPacklistBarcode", ""));
-            query.whereEqualTo("item", scanResults);
-            query.getFirstInBackground(new GetCallback<ParseObject>() {
-                public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        Log.d("List item: ", "" + object.toString());
-
-                        CheckBox cb = (CheckBox) tableLayout.findViewById(object.getInt("Order") - 1);
-                        cb.setChecked(true);
-
-                    } else {
-                        if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                            Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Item" + object.getString("item") + " not found in list.\n" +
-                                    "Scanned data: " + scanResults + ".\n" +
-                                    "Please try again...", Toast.LENGTH_LONG)
-                                    .show();
-
-                        } else Log.e("Item return: ", "Error: " + e.getMessage());
-                    }
-                }
-            });
         }
     }
 

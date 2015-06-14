@@ -111,6 +111,6 @@ public class ExternalCommunication {
     //Declare the interface. The method messageReceived(String message) will must be implemented in the MyActivity
     //class at on asynckTask doInBackground
     public interface OnMessageReceived {
-        public void messageReceived(String message);
+        void messageReceived(String message);
     }
 }

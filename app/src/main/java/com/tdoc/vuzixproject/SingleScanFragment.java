@@ -16,10 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -110,19 +106,10 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                         // T-DOC communications - try to connect to T-DOC server on WiFi
                         new connectTask().execute("");
 
-                        // Only do Parse.com queries if we are not connected to T-DOC;
-                        // This is for testing purposes only
-                        if (!ApplicationSingleton.isTDOCConnected()) {
-                            // Sends messages in the queue to Parse.com
+                        // Send the messages in the queue to the T-DOC server
+                        if (extComm != null) {
                             while (!scanQueue.isEmpty())
-                                parseCommunication(scanQueue.poll().toString());
-
-                        } else {
-                            // Send the messages in the queue to the T-DOC server
-                            if (extComm != null) {
-                                while (!scanQueue.isEmpty())
-                                    extComm.sendMessage(scanQueue.poll().toString());
-                            }
+                                extComm.sendMessage(scanQueue.poll().toString());
                         }
 
                     } else {
@@ -144,30 +131,6 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                 }
             }
         }
-    }
-    private void parseCommunication(final String scanResults){
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("OnlineData");
-        query.whereEqualTo("barcode", scanResults);
-        query.getFirstInBackground(new GetCallback<ParseObject>() {
-            // done is run when background query task returns a result, hopefully with a result object
-            public void done(ParseObject object, ParseException e) {
-                if (e == null) {
-                    Log.d("data retrieved: ", object.getString("data1") + " and " + object.getInt("data2"));
-                    tvData.setText("String data received: " + object.getString("data1") + "\n");
-                    tvData.append("Integer data received: " + object.getInt("data2"));
-                } else {
-                    Log.d("ParseException", "Error: " + e.getMessage() + " - code: " + e.getCode());
-                    // Let the user know if the object just couldn't be found, or if it's an actual error
-                    if (e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                        tvData.setText("Barcode not found in system.\n" +
-                                "Scanned data: " + scanResults + ".\n" +
-                                "Please try again...");
-                    } else {
-                        tvData.setText("And error occurred. Please try again...");
-                    }
-                }
-            }
-        });
     }
 
     public class connectTask extends AsyncTask<String, String, ExternalCommunication> {

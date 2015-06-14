@@ -43,12 +43,6 @@ public class MainActivity extends Activity {
             if (ApplicationSingleton.isThereVoice) ApplicationSingleton.getVoiceCtrl().setCallingFragment(fragment);
         }
 
-        // Parse.com test data push
-        //ParseObject testObject = new ParseObject("LoginCreds");
-        //testObject.put("name", "Ketil Kirchhof");
-        //testObject.put("data2", 002);
-        //testObject.saveInBackground();
-
         // Keep screen on (requires WAKE_LOCK permission in manifest)
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }

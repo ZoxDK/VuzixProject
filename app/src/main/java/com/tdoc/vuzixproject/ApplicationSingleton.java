@@ -47,12 +47,6 @@ public class ApplicationSingleton extends Application {
             voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
             //voiceCtrl.setWordlist(wordList);
         }
-
-        // Enable Local Datastore. Currently not used and creates issues due to running before .initialize for some reason.
-        //Parse.enableLocalDatastore(this);
-
-        // Initialize Parse.com access, probably with user and project hashes.
-        Parse.initialize(this, "sbnDtByNJrzgQXik8HRac2HyUVhqkigKUOcbQ52g", "oTAXhgq4M8qHcvAfAxJKRQ07DyP2zJz1phdeut8r");
     }
     // Check if voice recognition is present
     public boolean checkVoiceRecognition() {
