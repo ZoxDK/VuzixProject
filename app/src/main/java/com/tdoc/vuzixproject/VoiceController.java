@@ -89,6 +89,19 @@ public class VoiceController extends VoiceControl {
                         .addToBackStack(null)
                         .commit();
 
+            } else if (result.equals("pair")) {
+                Log.i("VoiceRecognition", "Pair gotten");
+
+                Fragment fragment = new SetupFragment();
+                callingFragment.getFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragmentcontainer, fragment, "FRAG_SETUP")
+                        .commit();
+
+            } else if (result.equals("unpair")) {
+                Log.i("VoiceRecognition", "Unpair gotten");
+                ApplicationSingleton.sharedPreferences.edit().putString("SERVER_IP", "").putInt("SERVER_PORT", -1).commit();
+
             } else if (result.equals("voice off")){
                 Log.i("VoiceRecognition", "Voice off gotten");
 

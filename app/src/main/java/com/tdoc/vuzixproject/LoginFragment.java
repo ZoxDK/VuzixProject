@@ -66,6 +66,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
                 currentUser = scanResult.getContents();
+                Log.d("scanResult Formatname", scanResult.getFormatName());
 
                 // T-DOC communications
                 new connectTask().execute("");
@@ -102,6 +103,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
             Log.d("Login: ", "Success!");
             currentUserName = values[0];
+
             Fragment fragment = new MainFragment();
             getFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)

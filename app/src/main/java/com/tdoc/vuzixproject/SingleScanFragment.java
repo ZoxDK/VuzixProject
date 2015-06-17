@@ -12,10 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.parse.ParseObject;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -85,6 +87,7 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
+                Log.d("scanResult Formatname", scanResult.getFormatName());
                 Queue scanQueue = ApplicationSingleton.getScanQueue();
 
                 // Check if there was backlogged scans saved - if so, ask to send
@@ -155,7 +158,27 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
+            if (values[0].startsWith("A")){
+                Log.d("T-DOC returns:", "Ack: "+values[0]);
 
+                // TODO: Play some sound to indicate ACK
+                // Also, can there be several of the same item?
+
+                // If return starts with N it's a Not acknowledged
+            } else if (values[0].startsWith("N")){
+                Log.d("T-DOC returns:", "Nack: "+values[0]);
+                Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Error: " + values[0]+ ".\n" +
+                        "Please try again...", Toast.LENGTH_LONG)
+                        .show();
+                // TODO: Play some sound to indicate NACK.
+
+                // Must have been an error since prefix is neither A nor N
+            } else {
+                Log.d("T-DOC returns:", "Error: "+values[0]);
+                Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Error: " + values[0]+ ".\n" +
+                        "Please try again...", Toast.LENGTH_LONG)
+                        .show();
+            }
             tvData.setText(values[0]);
         }
     }

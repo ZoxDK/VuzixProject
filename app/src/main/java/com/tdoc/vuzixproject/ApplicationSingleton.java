@@ -25,7 +25,7 @@ public class ApplicationSingleton extends Application {
     public static SharedPreferences sharedPreferences;
     private static VoiceController voiceCtrl;
     public String model = "";
-    private String[] wordList = {"back", "bar code", "perpetual inventory system"};
+    private String[] wordList = {"back", "bar code", "perpetual inventory system", "menu"};
     public static boolean isThereVoice = false;
     public static boolean voiceOff = false;
     private static boolean isTDOCConnected = false;

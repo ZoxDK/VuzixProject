@@ -27,7 +27,8 @@ public class MainActivity extends Activity {
             Fragment fragment;
 
             // Always run setup first, to be able to access server
-            if (ApplicationSingleton.sharedPreferences.getString("SERVER_IP", "").equals("")){
+            if (ApplicationSingleton.sharedPreferences.getString("SERVER_IP", "").equals("") ||
+                    ApplicationSingleton.sharedPreferences.getInt("SERVER_PORT", -1) == -1){
                 fragment = new SetupFragment();
                 getFragmentManager().beginTransaction()
                         .add(R.id.fragmentcontainer, fragment, "FRAG_SETUP")
@@ -48,7 +49,6 @@ public class MainActivity extends Activity {
                         .addToBackStack(null)
                         .commit();
             }
-            if (ApplicationSingleton.isThereVoice) ApplicationSingleton.getVoiceCtrl().setCallingFragment(fragment);
         }
 
         // Keep screen on (requires WAKE_LOCK permission in manifest)

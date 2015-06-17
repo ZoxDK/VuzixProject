@@ -54,7 +54,7 @@ public class ExternalCommunication {
             //here you must put your computer's IP address.
             InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
 
-            Log.i("TCP Client", "C: Connecting...");
+            Log.i("TCP Client", "C: Connecting to "+ SERVER_IP + " on port "+ SERVER_PORT);
 
             //create a socket to make the connection with the server
             Socket socket = new Socket(serverAddr, SERVER_PORT);
