@@ -69,7 +69,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
         } else if (v == startScanButton) {
             Log.i("Button pressed: ", "startScanButton");
 
-            MainActivity.scannerIntentRunning = true;
+            ApplicationSingleton.scannerIntentRunning = true;
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
 
@@ -89,7 +89,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
 
         // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
-            MainActivity.scannerIntentRunning = false;
+            ApplicationSingleton.scannerIntentRunning = false;
 
             // Convert to preferred ZXing IntentResult
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -134,7 +134,7 @@ public class PackingListFragment extends Fragment implements View.OnClickListene
                     } else {
                         json = "";
                     }
-                    Log.d("SingScan Json", "Json to be put in preferences: " + json);
+                    Log.d("PackList Json", "Json to be put in preferences: " + json);
                     ApplicationSingleton.sharedPreferences.edit().putString("scanQueue", json).commit();
 
                 }

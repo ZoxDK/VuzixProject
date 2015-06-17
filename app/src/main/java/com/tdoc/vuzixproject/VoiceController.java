@@ -47,16 +47,16 @@ public class VoiceController extends VoiceControl {
             if (result.equals("bar code")) {
                 Log.i("VoiceRecognition", "Bar code gotten");
 
-                MainActivity.scannerIntentRunning = true;
+                ApplicationSingleton.scannerIntentRunning = true;
                 IntentIntegrator integrator = new IntentIntegrator(callingFragment);
                 integrator.initiateScan();
 
-            //} else if (result.equals("back") && MainActivity.scannerIntentRunning) {
-            } else if (result.equals("back")) {
-                Log.i("VoiceRecognition", "Back gotten");
-
+            } else if (result.equals("go back") && ApplicationSingleton.scannerIntentRunning) {
+            //} else if (result.equals("back")) {
+                Log.i("VoiceRecognition", "Go back gotten");
+                ApplicationSingleton.scannerIntentRunning = false;
                 Intent intent = new Intent(context, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(intent);
 
             } else if (result.equals("order")) {
@@ -99,8 +99,30 @@ public class VoiceController extends VoiceControl {
                         .commit();
 
             } else if (result.equals("unpair")) {
+                // For debug purposes
                 Log.i("VoiceRecognition", "Unpair gotten");
                 ApplicationSingleton.sharedPreferences.edit().putString("SERVER_IP", "").putInt("SERVER_PORT", -1).commit();
+
+            } else if (result.equals("pool")) {
+                Log.i("VoiceRecognition", "Pool gotten");
+
+                Fragment fragment = new MultiScanFragment();
+                callingFragment.getFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragmentcontainer, fragment, "FRAG_MULTI_SCAN")
+                        .commit();
+
+            } else if (result.equals("scroll up") && callingFragment instanceof MultiScanFragment) {
+                Log.i("VoiceRecognition", "Scroll up gotten");
+                MultiScanFragment.scrollView.smoothScrollBy(0, -40);
+
+            } else if (result.equals("scroll down") && callingFragment instanceof MultiScanFragment) {
+                Log.i("VoiceRecognition", "Scroll down gotten");
+                MultiScanFragment.scrollView.smoothScrollBy(0, 40);
+
+            } else if (result.equals("finished") && callingFragment instanceof MultiScanFragment) {
+                Log.i("VoiceRecognition", "Scroll up gotten");
+                MultiScanFragment.finishedCalled = true;
 
             } else if (result.equals("voice off")){
                 Log.i("VoiceRecognition", "Voice off gotten");

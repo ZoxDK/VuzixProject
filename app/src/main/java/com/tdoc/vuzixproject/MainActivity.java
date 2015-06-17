@@ -10,17 +10,12 @@ import android.view.WindowManager;
 
 
 public class MainActivity extends Activity {
-    public static boolean scannerIntentRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("onCreate", "onCreate run");
         setContentView(R.layout.activity_main);
-
-
-        //gestSensor = new GestureController(this);
-
 
         // Add first fragment
         if (savedInstanceState == null) {
@@ -71,7 +66,10 @@ public class MainActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Fragment fragment = new SetupFragment();
+            getFragmentManager().beginTransaction()
+                    .add(R.id.fragmentcontainer, fragment, "FRAG_SETUP")
+                    .commit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -91,7 +89,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause(){
         super.onPause();
-        if (ApplicationSingleton.isThereVoice && !scannerIntentRunning) ApplicationSingleton.getVoiceCtrl().off();
+        if (ApplicationSingleton.isThereVoice && !ApplicationSingleton.scannerIntentRunning) ApplicationSingleton.getVoiceCtrl().off();
         //gestSensor.unregister();
     }
 

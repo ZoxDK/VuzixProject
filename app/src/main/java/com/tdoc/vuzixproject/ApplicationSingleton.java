@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.widget.Toast;
 
-import com.parse.Parse;
 import com.vuzix.speech.Constants;
 
 import java.util.LinkedList;
@@ -23,6 +22,7 @@ import java.util.Queue;
 public class ApplicationSingleton extends Application {
     private static ApplicationSingleton ourInstance = null;
     public static SharedPreferences sharedPreferences;
+    public static boolean scannerIntentRunning = false;
     private static VoiceController voiceCtrl;
     public String model = "";
     private String[] wordList = {"back", "bar code", "perpetual inventory system", "menu"};
@@ -44,7 +44,6 @@ public class ApplicationSingleton extends Application {
         if (checkVoiceRecognition() && model.equals("M100")) {
             voiceCtrl = new VoiceController(getBaseContext());
             voiceCtrl.addGrammar(Constants.GRAMMAR_WAREHOUSE);
-            voiceCtrl.addGrammar(Constants.GRAMMAR_MEDIA);
             //voiceCtrl.setWordlist(wordList);
         }
     }

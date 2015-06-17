@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class MainFragment extends Fragment implements View.OnClickListener {
-    private Button startScanButton, startPackingListButton;
+    private Button startScanButton, startPackingListButton, startMultiScanButton, startSettingsButton;
     private TextView tvUser;
     private View rootView;
     private String[] wordList = {"back", "order", "packing list", "perpetual inventory system"};
@@ -27,8 +27,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
         startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
         startPackingListButton = (Button) rootView.findViewById(R.id.startPackingListButton);
+        startMultiScanButton = (Button) rootView.findViewById(R.id.startMultiScanButton);
+        startSettingsButton = (Button) rootView.findViewById(R.id.startSettingsButton);
+
         startScanButton.setOnClickListener(this);
         startPackingListButton.setOnClickListener(this);
+        startMultiScanButton.setOnClickListener(this);
+        startSettingsButton.setOnClickListener(this);
 
         // Inflate the layout for this fragment
         return rootView;
@@ -47,13 +52,31 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                     .addToBackStack(null)
                     .commit();
 
-        } if (v == startPackingListButton) {
+        } else if (v == startPackingListButton) {
             Log.i("Button pressed: ", "startPackingListButton");
 
             Fragment fragment = new PackingListFragment();
             this.getFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
                     .replace(R.id.fragmentcontainer, fragment, "FRAG_PACK")
+                    .addToBackStack(null)
+                    .commit();
+        } else if (v == startMultiScanButton) {
+            Log.i("Button pressed: ", "startPackingListButton");
+
+            Fragment fragment = new MultiScanFragment();
+            this.getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_MULTI_SCAN")
+                    .addToBackStack(null)
+                    .commit();
+        } else if (v == startSettingsButton) {
+            Log.i("Button pressed: ", "startPackingListButton");
+
+            Fragment fragment = new SetupFragment();
+            this.getFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                    .replace(R.id.fragmentcontainer, fragment, "FRAG_SETUP")
                     .addToBackStack(null)
                     .commit();
         }

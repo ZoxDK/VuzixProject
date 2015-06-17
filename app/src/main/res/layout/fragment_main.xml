@@ -3,15 +3,13 @@
     android:layout_height="match_parent" tools:context="com.tdoc.vuzixproject.MainFragment">
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Order"
+        android:layout_width="110dp"
+        android:layout_height="55dp"
+        android:text="Singlescan (Order)"
         android:id="@+id/startScanButton"
         android:layout_below="@+id/instructions_main"
-        android:layout_alignRight="@+id/startPackingListButton"
-        android:layout_alignEnd="@+id/startPackingListButton"
-        android:layout_alignLeft="@+id/startPackingListButton"
-        android:layout_alignStart="@+id/startPackingListButton" />
+        android:layout_toLeftOf="@+id/anchor"
+        android:layout_toStartOf="@+id/anchor" />
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Say the word on the button to start that action"
@@ -24,12 +22,13 @@
         android:layout_alignParentEnd="true" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="110dp"
+        android:layout_height="55dp"
         android:text="Packing List"
         android:id="@+id/startPackingListButton"
-        android:layout_below="@+id/startScanButton"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/anchor"
+        android:layout_toLeftOf="@+id/anchor"
+        android:layout_toStartOf="@+id/anchor" />
 
     <TextView
         android:layout_width="match_parent"
@@ -42,5 +41,31 @@
         android:layout_centerHorizontal="true"
         android:gravity="center|top"
         android:text="Welcome &lt;username>" />
+
+    <Button
+        android:layout_width="110dp"
+        android:layout_height="55dp"
+        android:text="Settings (Pair)"
+        android:id="@+id/startSettingsButton"
+        android:layout_below="@+id/anchor"
+        android:layout_toRightOf="@+id/anchor"
+        android:layout_toEndOf="@+id/anchor" />
+
+    <Button
+        android:layout_width="110dp"
+        android:layout_height="55dp"
+        android:text="Multiscan (Pool)"
+        android:id="@+id/startMultiScanButton"
+        android:layout_below="@+id/instructions_main"
+        android:layout_toRightOf="@+id/anchor"
+        android:layout_toEndOf="@+id/anchor" />
+
+    <Button
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:id="@+id/anchor"
+        android:layout_alignBottom="@+id/startMultiScanButton"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
 
 </RelativeLayout>

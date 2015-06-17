@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,23 +22,27 @@ import com.google.gson.Gson;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class SingleScanFragment extends Fragment implements View.OnClickListener{
+public class MultiScanFragment extends Fragment implements View.OnClickListener{
 
     private Button startScanButton, menuButton;
     private TextView tvData;
     private View rootView;
+    public static ScrollView scrollView;
+    public static boolean finishedCalled = false;
     private ExternalCommunication extComm;
-    private String[] wordList = {"back", "menu", "bar code", "perpetual inventory system"};
+    private String[] wordList = {"back", "menu", "finished", "bar code", "perpetual inventory system"};
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        rootView = inflater.inflate(R.layout.fragment_single_scan, container, false);
+        rootView = inflater.inflate(R.layout.fragment_multi_scan, container, false);
 
+        scrollView = (ScrollView) rootView.findViewById(R.id.scrollView);
         startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
         menuButton = (Button) rootView.findViewById(R.id.menuButton);
+
         startScanButton.setOnClickListener(this);
         menuButton.setOnClickListener(this);
 
@@ -166,8 +171,12 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                 Log.d("T-DOC returns:", "Ack: "+values[0]);
 
                 // TODO: Play some sound to indicate ACK
-                tvData.setText(values[0].substring(1));
-
+                tvData.append(values[0].substring(1)+"\n");
+                if (!finishedCalled) {
+                    ApplicationSingleton.scannerIntentRunning = true;
+                    IntentIntegrator integrator = new IntentIntegrator(MultiScanFragment.this);
+                    integrator.initiateScan();
+                }
                 // If return starts with N it's a Not acknowledged
             } else if (values[0].startsWith("N")){
                 Log.d("T-DOC returns:", "Nack: "+values[0]);
@@ -183,7 +192,6 @@ public class SingleScanFragment extends Fragment implements View.OnClickListener
                         "Please try again...", Toast.LENGTH_LONG)
                         .show();
             }
-
         }
     }
 

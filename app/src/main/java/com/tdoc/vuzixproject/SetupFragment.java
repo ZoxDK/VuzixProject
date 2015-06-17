@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class SetupFragment extends Fragment implements View.OnClickListener{
@@ -21,8 +22,8 @@ public class SetupFragment extends Fragment implements View.OnClickListener{
     private String serverIP = ApplicationSingleton.sharedPreferences.getString("SERVER_IP", "");
     private String serverPort = String.valueOf(ApplicationSingleton.sharedPreferences.getInt("SERVER_PORT", -1));
     private int port;
-    private String[] wordList = {"back", "menu", "scan", "bar code", "perpetual inventory system"};
-
+    private String[] wordList = {"back", "menu", "bar code", "perpetual inventory system"};
+    private String[] wordListNewSetup = {"back", "bar code", "perpetual inventory system"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,11 +33,18 @@ public class SetupFragment extends Fragment implements View.OnClickListener{
 
         startScanButton = (Button) rootView.findViewById(R.id.startScanButton);
         menuButton = (Button) rootView.findViewById(R.id.menuButton);
+        // Only show allow use of Menu if we have an IP and port
+        if (serverIP.equals("") || serverPort.equals("-1")){
+            menuButton.setVisibility(View.INVISIBLE);
+            //ApplicationSingleton.getVoiceCtrl().setWordlist(wordListNewSetup);
+        } else {
+            menuButton.setOnClickListener(this);
+        }
         startScanButton.setOnClickListener(this);
-        menuButton.setOnClickListener(this);
+
 
         tvData = (TextView) rootView.findViewById(R.id.tvData);
-        tvData.setText("Please say Bar Code, then scan the first barcode on the setup page.");
+        tvData.setText("Please say BAR CODE, then scan the first barcode on the setup page.");
 
         // Inflate the layout for this fragment
         return rootView;
@@ -48,7 +56,7 @@ public class SetupFragment extends Fragment implements View.OnClickListener{
         if (v == startScanButton) {
             Log.i("Button pressed: ", "startScanButton");
 
-            MainActivity.scannerIntentRunning = true;
+            ApplicationSingleton.scannerIntentRunning = true;
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
 
@@ -67,7 +75,7 @@ public class SetupFragment extends Fragment implements View.OnClickListener{
 
         // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
-            MainActivity.scannerIntentRunning = false;
+            ApplicationSingleton.scannerIntentRunning = false;
             // Convert to preferred ZXing IntentResult
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
@@ -140,12 +148,13 @@ public class SetupFragment extends Fragment implements View.OnClickListener{
                         }
 
                     } else if (!currState.equals("NONE")) {
-                        MainActivity.scannerIntentRunning = true;
+                        ApplicationSingleton.scannerIntentRunning = true;
                         IntentIntegrator integrator = new IntentIntegrator(this);
                         integrator.initiateScan();
                     }
                 } else {
-                    tvData.setText("Scan cancelled or failed. Please try again.");
+                    Toast.makeText(this.getActivity(), "Scan cancelled or failed. Please try again...", Toast.LENGTH_LONG)
+                            .show();
                 }
             }
         }

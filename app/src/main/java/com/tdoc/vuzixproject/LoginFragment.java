@@ -9,16 +9,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class LoginFragment extends Fragment implements View.OnClickListener {
 
     private Button startScanButton;
-    public static TextView instructions_login;
+    private TextView instructions_login;
+    private EditText etLogin;
     private View rootView;
     private String currentUser = "";
     private String currentUserName = "";
     private ExternalCommunication extComm;
+    private String[] wordList = {"bar code", "perpetual inventory system", "menu"};
 
 
     @Override
@@ -33,6 +37,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         instructions_login = (TextView) rootView.findViewById(R.id.instructions_login);
         instructions_login.setText(R.string.instructions_login);
 
+        etLogin = (EditText) rootView.findViewById(R.id.etLogin);
+
         // Inflate the layout for this fragment
         return rootView;
     }
@@ -43,7 +49,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         if (v == startScanButton){
             Log.i("Button pressed: ", "startScanButton");
 
-            MainActivity.scannerIntentRunning = true;
+            ApplicationSingleton.scannerIntentRunning = true;
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.initiateScan();
         }
@@ -53,21 +59,24 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        if (ApplicationSingleton.isThereVoice) ApplicationSingleton.getVoiceCtrl().setCallingFragment(this);
+        if (ApplicationSingleton.isThereVoice){
+            ApplicationSingleton.getVoiceCtrl().setCallingFragment(this);
+            //ApplicationSingleton.getVoiceCtrl().setWordlist(wordList);
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         // Currently only getting scan results, but check for request code to be sure
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
-            MainActivity.scannerIntentRunning = false;
+            ApplicationSingleton.scannerIntentRunning = false;
             // Convert to preferred ZXing IntentResult
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 Log.i("Scan result", "" + scanResult.getContents());
                 currentUser = scanResult.getContents();
                 Log.d("scanResult Formatname", scanResult.getFormatName());
-
+                etLogin.setText(currentUser);
                 // T-DOC communications
                 new connectTask().execute("");
                 //sends the message to the server
@@ -101,15 +110,40 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
 
-            Log.d("Login: ", "Success!");
-            currentUserName = values[0];
 
-            Fragment fragment = new MainFragment();
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
-                    .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
-                    .addToBackStack(null)
-                    .commit();
+            if (values[0].startsWith("A")){
+                Log.d("T-DOC returns:", "Ack: "+values[0]);
+                Log.d("Login: ", "Success!");
+                // TODO: Play some sound to indicate ACK
+                ApplicationSingleton.sharedPreferences.edit()
+                        .putString("currentUserName", values[0])
+                        .putString("currentUser", currentUser)
+                        .putLong("loginTime", System.currentTimeMillis())
+                        .commit();
+
+                Fragment fragment = new MainFragment();
+                getFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragmentcontainer, fragment, "FRAG_SINGLE_SCAN")
+                        .addToBackStack(null)
+                        .commit();
+
+                // If return starts with N it's a Not acknowledged
+            } else if (values[0].startsWith("N")){
+                Log.d("T-DOC returns:", "Nack: "+values[0]);
+                Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Error: " + values[0] + ".\n" +
+                        "Please try again...", Toast.LENGTH_LONG)
+                        .show();
+                // TODO: Play some sound to indicate NACK.
+
+                // Must have been an error since prefix is neither A nor N
+            } else {
+                Log.d("T-DOC returns:", "Error: "+values[0]);
+                Toast.makeText(ApplicationSingleton.getInstance().getBaseContext(), "Error: " + values[0]+ ".\n" +
+                        "Please try again...", Toast.LENGTH_LONG)
+                        .show();
+            }
+
         }
     }
 
